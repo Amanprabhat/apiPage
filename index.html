@@ -553,7 +553,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
   <div class="qcard">
     <div class="qcard-icon teal">&#128273;</div>
     <div class="qcard-title">Authentication</div>
-    <div class="qcard-body">Pass your API key in the <code>x-api-key</code> header on every request. Obtain your key from Knowmax admin under Settings &gt; Integrations.</div>
+    <div class="qcard-body">Pass your channel API key in the <code>x-api-key</code> header on every request. Each channel has its own key — find it under <code>Admin → Org Settings → Channels</code>. The key controls which content is returned.</div>
   </div>
   <div class="qcard">
     <div class="qcard-icon gold">&#128260;</div>
@@ -570,12 +570,29 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 <!-- AUTH -->
 <div class="gs-card sec-anchor" id="auth">
   <div class="gs-h">&#128273; Authentication</div>
-  <p class="gs-p">All API requests must include a valid <strong>x-api-key</strong> header. Requests without a key, or with an invalid key, will receive a <strong>403 Forbidden</strong> response. API keys are scoped per tenant and can be rotated from the Knowmax admin panel.</p>
-  <div class="code">
+  <p class="gs-p">Every API request must carry a valid <strong>x-api-key</strong> header. Requests with a missing or invalid key receive a <strong>403 Forbidden</strong> response. API keys in Knowmax are <strong>channel-scoped</strong> — each channel has its own unique key, and you choose which channel's key to use depending on what content you need to expose.</p>
+
+  <div class="callout callout-info" style="margin-top:4px">
+    <span class="callout-icon">&#128161;</span>
+    <div class="callout-text">
+      <strong>What is a Channel?</strong><br/>
+      A Channel is Knowmax's content access layer. When content is published in your knowledge base, it can be mapped to one or more channels. When you make an API request using a channel's key, only content mapped to that channel will be returned — any content not associated with that channel is excluded from the response.<br/><br/>
+      <strong>Example:</strong> If your knowledge base has 30 articles and 20 are mapped to the <em>Customer Portal</em> channel, the API key for that channel will return only those 20 articles. The remaining 10 are invisible to that key. This lets you serve different audiences or integrations from a single knowledge base without duplicating content.
+    </div>
+  </div>
+
+  <div class="callout callout-warn" style="margin-top:10px">
+    <span class="callout-icon">&#128205;</span>
+    <div class="callout-text">
+      <strong>Where to find your API key:</strong> Log in to the Knowmax Admin Panel &rarr; <strong>Org Settings</strong> &rarr; <strong>Channels</strong> &rarr; select the channel you want to integrate with &rarr; copy the API key shown for that channel.
+    </div>
+  </div>
+
+  <div class="code" style="margin-top:14px">
     <div class="code-bar"><div class="code-dots"><div class="code-dot" style="background:#f05252"></div><div class="code-dot" style="background:#f59e0b"></div><div class="code-dot" style="background:#00c48c"></div></div><span class="code-lang">cURL example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
     <div class="code-pre"><span class="tok-m">GET</span> <span class="tok-u">https://in-manage.knowmax.ai/api/v1/articles</span>
-<span class="tok-c"># Required on every request</span>
-<span class="tok-k">x-api-key:</span> <span class="tok-v">your_api_key_here</span>
+<span class="tok-c"># Required on every request — use the API key of the channel you want to query</span>
+<span class="tok-k">x-api-key:</span> <span class="tok-v">your_channel_api_key</span>
 <span class="tok-k">subdomain:</span> <span class="tok-v">your_tenant_name</span>
 <span class="tok-k">Content-Type:</span> <span class="tok-v">application/json</span></div>
   </div>
@@ -607,7 +624,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
     <table>
       <thead><tr><th>Header</th><th>Required</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>x-api-key</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your Knowmax API key for authentication</td></tr>
+        <tr><td><code>x-api-key</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your channel API key. Each channel in Knowmax has its own key — the key you use determines which subset of content is returned. Find it in <strong>Admin → Org Settings → Channels → &lt;select channel&gt;</strong>.</td></tr>
         <tr><td><code>subdomain</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your client tenant name - the path segment in your Knowmax portal URL. Example: from <code>https://in-next.knowmax.ai/acme/home</code> the value is <code>acme</code></td></tr>
         <tr><td><code>language</code></td><td>No</td><td>Language <strong>ID</strong> for localized content — not a language code. Call <code>GET /api/v1/languages</code> to get the list of IDs enabled for your tenant, then pass the <code>id</code> field value here.</td></tr>
         <tr><td><code>Content-Type</code></td><td>POST only</td><td>Must be <code>application/json</code> for all POST requests with a body</td></tr>
