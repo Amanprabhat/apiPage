@@ -428,6 +428,22 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 .key-notice.warn{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
 .key-notice.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
 
+/* ── RESPONSE VIEWER ── */
+.rvt-wrap{display:flex;gap:2px;background:rgba(255,255,255,.06);border-radius:5px;padding:2px;flex-shrink:0}
+.rvt{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:4px;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:.15s}
+.rvt.on{background:rgba(255,255,255,.15);color:#fff}
+.rvt:hover:not(.on){color:rgba(255,255,255,.7)}
+/* JSON tree */
+.jtree{white-space:pre-wrap;word-break:break-word;font-family:"JetBrains Mono",monospace;font-size:11.5px;line-height:1.9}
+.jk{color:#79c0ff}.jvs{color:#56d364}.jvn{color:#FFB163}
+.jvb{color:#f8a261}.jvnull{color:#6a737d;font-style:italic}
+.jbr{color:rgba(255,255,255,.5)}.jp{color:rgba(255,255,255,.3)}
+.jcar{cursor:pointer;user-select:none;color:var(--gold);font-size:9px;
+  display:inline-block;width:14px;line-height:1;vertical-align:middle;transition:transform .15s;text-align:center}
+.jcar.closed{transform:rotate(-90deg)}
+.jsumm{color:#6a737d;font-style:italic;font-size:10px}
+
 /* ── DIVIDER ── */
 .divider{margin:48px 0 32px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--teal) 0%,var(--teal2) 30%,rgba(9,102,123,.2) 70%,transparent 100%);
@@ -1220,8 +1236,18 @@ function rTry(ep){
         <button class="clr-btn" onclick="clrResp('${ep.id}')">Clear</button>
       </div>
       <div class="resp-wrap" id="respwrap-${ep.id}">
-        <div class="resp-hdr"><span class="resp-sc" id="respsc-${ep.id}"></span><span class="resp-ms" id="respms-${ep.id}"></span></div>
-        <div class="resp-body" id="respbody-${ep.id}"></div>
+        <div class="resp-hdr">
+          <span class="resp-sc" id="respsc-${ep.id}"></span>
+          <span class="resp-ms" id="respms-${ep.id}"></span>
+          <div style="flex:1"></div>
+          <div class="rvt-wrap">
+            <button class="rvt on" onclick="switchRV(this,'${ep.id}','tree')">Pretty</button>
+            <button class="rvt" onclick="switchRV(this,'${ep.id}','raw')">Raw</button>
+          </div>
+          <button class="copy-btn" style="margin-left:8px" onclick="copyRespBody('${ep.id}')">Copy</button>
+        </div>
+        <div class="resp-body jtree" id="resp-tree-${ep.id}"></div>
+        <div class="resp-body" id="resp-raw-${ep.id}" style="display:none;white-space:pre-wrap;word-break:break-all"></div>
       </div>
     </div></div>`;
 }
@@ -1348,13 +1374,54 @@ function updCurl(id){
   });
 }
 
-function syntaxHL(json){
-  const esc=json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return esc.replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
-    if(/^"/.test(m)) return /:\s*$/.test(m)?`<span style="color:#79c0ff">${m}</span>`:`<span style="color:#56d364">${m}</span>`;
-    if(/true|false/.test(m)) return `<span style="color:#f8a261">${m}</span>`;
-    if(/null/.test(m)) return `<span style="color:#6a737d">${m}</span>`;
-    return `<span style="color:#FFB163">${m}</span>`;
+// ── JSON TREE RENDERER ───────────────────────────────────
+let _jid=0;
+function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderJTree(v,d){
+  const ind='  '.repeat(d), ind1='  '.repeat(d+1);
+  if(v===null) return '<span class="jvnull">null</span>';
+  if(typeof v==='boolean') return '<span class="jvb">'+v+'</span>';
+  if(typeof v==='number') return '<span class="jvn">'+v+'</span>';
+  if(typeof v==='string') return '<span class="jvs">"'+_esc(v)+'"</span>';
+  if(Array.isArray(v)){
+    if(!v.length) return '<span class="jbr">[]</span>';
+    const uid='j'+(++_jid);
+    const rows=v.map((x,i)=>ind1+renderJTree(x,d+1)+(i<v.length-1?'<span class="jp">,</span>':'')).join('\n');
+    return '<span class="jcar" onclick="jtog(\''+uid+'\')">&#9660;</span><span class="jbr">[</span><span id="'+uid+'-s" class="jsumm" style="display:none"> '+v.length+' items </span>\n<span id="'+uid+'">'+rows+'\n'+ind+'</span><span class="jbr">]</span>';
+  }
+  const keys=Object.keys(v);
+  if(!keys.length) return '<span class="jbr">{}</span>';
+  const uid='j'+(++_jid);
+  const rows=keys.map((k,i)=>ind1+'<span class="jk">"'+_esc(k)+'"</span><span class="jp">: </span>'+renderJTree(v[k],d+1)+(i<keys.length-1?'<span class="jp">,</span>':'')).join('\n');
+  return '<span class="jcar" onclick="jtog(\''+uid+'\')">&#9660;</span><span class="jbr">{</span><span id="'+uid+'-s" class="jsumm" style="display:none"> '+keys.length+' keys </span>\n<span id="'+uid+'">'+rows+'\n'+ind+'</span><span class="jbr">}</span>';
+}
+
+function jtog(uid){
+  const ch=document.getElementById(uid);
+  const sm=document.getElementById(uid+'-s');
+  if(!ch)return;
+  const open=ch.style.display!=='none';
+  ch.style.display=open?'none':'inline';
+  if(sm)sm.style.display=open?'inline':'none';
+  const car=document.querySelector('[onclick="jtog(\''+uid+'\')"]');
+  if(car)car.classList.toggle('closed',open);
+}
+
+function switchRV(btn,id,view){
+  btn.closest('.rvt-wrap').querySelectorAll('.rvt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('resp-tree-'+id).style.display=view==='tree'?'block':'none';
+  document.getElementById('resp-raw-'+id).style.display=view==='raw'?'block':'none';
+}
+
+function copyRespBody(id){
+  const raw=document.getElementById('resp-raw-'+id);
+  if(!raw||!raw.textContent)return;
+  navigator.clipboard.writeText(raw.textContent).then(()=>{
+    const wrap=document.getElementById('respwrap-'+id);
+    const btn=wrap?wrap.querySelector('[onclick*="copyRespBody"]'):null;
+    if(btn){btn.textContent='Copied!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok');},2000);}
   });
 }
 
@@ -1365,7 +1432,8 @@ async function execReq(id){
   const wrap=document.getElementById('respwrap-'+id);
   const sc=document.getElementById('respsc-'+id);
   const ms=document.getElementById('respms-'+id);
-  const body=document.getElementById('respbody-'+id);
+  const treeEl=document.getElementById('resp-tree-'+id);
+  const rawEl=document.getElementById('resp-raw-'+id);
 
   btn.disabled=true;
   btn.innerHTML='<span class="spin"></span> Executing...';
@@ -1390,16 +1458,29 @@ async function execReq(id){
     const res=await fetch(url,opts);
     const elapsed=Date.now()-t0;
     const txt=await res.text();
-    let pretty;try{pretty=JSON.stringify(JSON.parse(txt),null,2)}catch{pretty=txt}
     sc.textContent=res.status+' '+res.statusText;
     sc.className='resp-sc '+(res.ok?'sc-ok':'sc-err');
     ms.textContent=elapsed+'ms';
-    body.innerHTML=syntaxHL(pretty);
+    try{
+      const parsed=JSON.parse(txt);
+      _jid=0;
+      treeEl.innerHTML=renderJTree(parsed,0);
+      rawEl.textContent=JSON.stringify(parsed);
+    }catch{
+      treeEl.textContent=txt;
+      rawEl.textContent=txt;
+    }
+    // reset to pretty tab
+    treeEl.style.display='block'; rawEl.style.display='none';
+    wrap.querySelectorAll('.rvt').forEach((b,i)=>b.classList.toggle('on',i===0));
     wrap.classList.add('show');
   }catch(err){
     sc.textContent='Network Error'; sc.className='resp-sc sc-err';
     ms.textContent='';
-    body.innerHTML=`<span style="color:#f87171">${err.message}</span>\n\n<span style="color:#6a737d">If you see a CORS error, the browser blocked the request due to cross-origin policy.\nUse cURL or Postman to test outside the browser.</span>`;
+    treeEl.innerHTML='<span style="color:#f87171">'+_esc(err.message)+'</span>\n\n<span style="color:#6a737d;font-style:italic">If you see a CORS error, the browser blocked the request.\nUse cURL or Postman to test outside the browser.</span>';
+    rawEl.textContent=err.message;
+    treeEl.style.display='block'; rawEl.style.display='none';
+    wrap.querySelectorAll('.rvt').forEach((b,i)=>b.classList.toggle('on',i===0));
     wrap.classList.add('show');
   }finally{
     btn.disabled=false;
