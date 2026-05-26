@@ -1181,7 +1181,7 @@ function exJSON(fields,ind){
     let v;
     if(f.nested){
       const arr=f.type&&(f.type.startsWith('array')||f.type.includes('[]'));
-      v=arr?'[\n'+p+'    '+exJSON(f.nested,ind+2).replace(/\n/g,'').replace(/^\{/,'').replace(/\}$/,'').trim()+'\n'+p+'  ]':exJSON(f.nested,ind+1);
+      v=arr?'[\n'+p+'  '+exJSON(f.nested,ind+1)+'\n'+p+']':exJSON(f.nested,ind+1);
     }else if(f.ex){
       const raw=f.ex.replace(/^"|"$/g,'');
       v=(/^\d/.test(raw)||['true','false','null'].includes(raw)||/^[\[{]/.test(raw))?f.ex:`"${raw}"`;
