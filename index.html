@@ -1638,7 +1638,7 @@ const eyeClosed = `<svg width="15" height="15" fill="none" stroke="currentColor"
       <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <div class="modal-title">API Authorization</div>
-    <div class="modal-sub">Enter your Knowmax API key to authenticate requests in the Try It Out panel. The key is stored in memory for this session only.</div>
+    <div class="modal-sub">Enter your channel API key to authenticate Try It Out requests. The key you enter determines which channel's content is returned — store it only for this session.</div>
     <div class="modal-status-banner msb-ok" id="authStatusBanner" style="display:none">
       API key is active — all Try It Out requests will include it automatically.
     </div>
@@ -1652,7 +1652,7 @@ const eyeClosed = `<svg width="15" height="15" fill="none" stroke="currentColor"
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
-    <div class="modal-hint">Obtain your API key from Knowmax Admin → Settings → Integrations. Keys are scoped per tenant and can be rotated at any time. This key is <strong>never logged or stored</strong> — it only lives in your browser's memory for this session.</div>
+    <div class="modal-hint">API keys in Knowmax are <strong>channel-scoped</strong>. To find yours: <strong>Admin Panel → Org Settings → Channels → select your channel → copy the API key</strong>. Each channel has a unique key — the key you use here controls which subset of your published content is returned in API responses. This key is <strong>never logged or stored</strong> — it exists only in your browser's memory for this session.</div>
     <div class="modal-footer">
       <button class="modal-revoke" id="revokeBtn" onclick="revokeKey()" style="display:none">Revoke Key</button>
       <button class="modal-cancel" onclick="closeAuthModal()">Cancel</button>
