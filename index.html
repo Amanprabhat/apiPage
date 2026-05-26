@@ -593,7 +593,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
       <tbody>
         <tr><td><code>x-api-key</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your Knowmax API key for authentication</td></tr>
         <tr><td><code>subdomain</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your client tenant name - the path segment in your Knowmax portal URL. Example: from <code>https://in-next.knowmax.ai/acme/home</code> the value is <code>acme</code></td></tr>
-        <tr><td><code>language</code></td><td>No</td><td>Language code for localized content (e.g. <code>en</code>, <code>ar</code>). Use the Languages endpoint to get all enabled codes for your tenant.</td></tr>
+        <tr><td><code>language</code></td><td>No</td><td>Language <strong>ID</strong> for localized content — not a language code. Call <code>GET /api/v1/languages</code> to get the list of IDs enabled for your tenant, then pass the <code>id</code> field value here.</td></tr>
         <tr><td><code>Content-Type</code></td><td>POST only</td><td>Must be <code>application/json</code> for all POST requests with a body</td></tr>
       </tbody>
     </table>
@@ -634,7 +634,7 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name - the path segment from your Knowmax portal URL (e.g. kmdemo from in-next.knowmax.ai/kmdemo/home)'},
     {name:'moduleType',in:'query',req:false,type:'string',ex:'article',desc:'Filter categories by module type',enum:['article','faq','document','pg','decision-trees','sop']},
-    {name:'language',in:'header',req:false,type:'string',ex:'en',desc:'Language code for localized category names'}
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Root categories fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden. Invalid or missing API key.'}],
    schema:{name:'ResGetCategories',fields:[
@@ -654,7 +654,7 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'q',in:'query',req:true,type:'string',ex:'mobile',desc:'Search query. Minimum 3 characters.'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'}
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Categories searched successfully.'},{code:400,cls:'rc-err',desc:'Bad Request. Query too short.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResCategorySearch',fields:[
@@ -670,7 +670,7 @@ const GROUPS=[
     {name:'id',in:'path',req:true,type:'string',ex:'cls1rigo800051218cv613s5t',desc:'ID of the parent category'},
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'moduleType',in:'query',req:false,type:'string',ex:'article',enum:['article','faq','document','pg','decision-trees','sop']},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'}
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Child categories fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetCategories',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'array',req:true,desc:'Child category objects'}]}
@@ -683,7 +683,7 @@ const GROUPS=[
    desc:'Returns a paginated list of FAQs. Filter by category name, set pagination, and control sort order.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
     {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
     {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
@@ -747,7 +747,7 @@ const GROUPS=[
    desc:'Returns a paginated list of published documents. Filter by category and control sort order.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'limit',in:'query',req:false,type:'number',ex:'10'},
@@ -782,7 +782,7 @@ const GROUPS=[
    desc:'Returns a paginated list of published articles. Filter by category and control sort order.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'limit',in:'query',req:false,type:'number',ex:'10'},
@@ -831,7 +831,7 @@ const GROUPS=[
    desc:'Returns a paginated list of picture guides. Filter by category and control sort order.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'limit',in:'query',req:false,type:'number',ex:'10'},
@@ -861,10 +861,10 @@ const GROUPS=[
   }
  ]},
 {id:'languages',name:'Languages',icon:'&#127758;',
- desc:'Retrieve all languages configured for your tenant. Use language codes in the language header when fetching localized content.',
+ desc:'Retrieve all languages configured for your tenant. Use the returned language IDs (not codes) in the <code>language</code> header when fetching localized content.',
  endpoints:[
   {id:'get-languages',method:'GET',path:'/api/v1/languages',summary:'Fetch Languages',
-   desc:'Returns all languages enabled for the specified tenant. Use the returned language IDs in the <code>language</code> header when fetching content.',
+   desc:'Returns all languages enabled for the specified tenant. Use the returned <strong>language ID</strong> (the <code>id</code> field) — not a language code — in the <code>language</code> header when fetching content.',
    params:[{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
    responses:[{code:200,cls:'rc-ok',desc:'Languages fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetLanguage',fields:[
@@ -883,7 +883,7 @@ const GROUPS=[
    desc:'Get an AI-generated answer to a natural language question. The AI synthesizes information from your knowledge base to provide a direct answer. Supports streaming via Server-Sent Events.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:true,type:'string',ex:'en',desc:'Language for the AI response'},
+    {name:'language',in:'header',req:true,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages). Required for AI responses.'},
     {name:'q',in:'query',req:true,type:'string',ex:'How to change password on Knowmax App?',desc:'Natural language question'},
     {name:'regenerate',in:'query',req:false,type:'boolean',ex:'false',desc:'Set to true to regenerate a fresh AI answer'},
     {name:'streaming',in:'query',req:false,type:'boolean',ex:'true',desc:'Enable SSE streaming response'}
@@ -901,7 +901,7 @@ const GROUPS=[
    desc:'Retrieve the knowledge base items that were used as sources to generate an Ask AI answer. Use this to show attribution or "read more" references.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:true,type:'string',ex:'en'},
+    {name:'language',in:'header',req:true,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'q',in:'query',req:true,type:'string',ex:'How to change password on Knowmax App?'},
     {name:'department',in:'header',req:false,type:'string',desc:'Filter sources by department'},
     {name:'include_fields',in:'query',req:false,type:'string',ex:'url,text',desc:'Comma-separated fields to include in results'}
@@ -914,7 +914,7 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'q',in:'query',req:true,type:'string',ex:'Discount on Food App'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'size',in:'query',req:false,type:'number',ex:'10'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'contentType',in:'query',req:false,type:'array',ex:'["article","decision-trees"]',enum:['article','decision-trees','pg','faq','document','confluence','sharepoint','google-drive','custom_links','sop']},
@@ -931,7 +931,7 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'k',in:'query',req:true,type:'string',ex:'discount,food,app',desc:'Comma-separated keyword list'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'size',in:'query',req:false,type:'number',ex:'10'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'contentType',in:'query',req:false,type:'array',ex:'["article","faq"]',enum:['article','decision-trees','pg','faq','document','confluence','sharepoint','google-drive','custom_links','sop']},
@@ -945,7 +945,7 @@ const GROUPS=[
    desc:'AI-curated recommended results for a search query. Applies active recommendation logic to surface the most relevant content for the given query.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:true,type:'string',ex:'en'},
+    {name:'language',in:'header',req:true,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'q',in:'query',req:true,type:'string',ex:'Discount on Food App'},
     {name:'size',in:'query',req:false,type:'number',ex:'10'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
@@ -966,7 +966,7 @@ const GROUPS=[
    desc:'Returns a paginated list of published decision trees. Filter by category.',
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
-    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
     {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
     {name:'page',in:'query',req:false,type:'number',ex:'1'},
     {name:'limit',in:'query',req:false,type:'number',ex:'10'},
@@ -1189,7 +1189,7 @@ function rTry(ep){
         <select class="fsel" id="${id}" data-param="${p.name}" data-in="${p.in}"><option value="">-- select --</option>${opts}</select></div>`;
     }
     return `<div class="fg"><label class="fl" for="${id}">${p.name} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
-      <input class="fi" id="${id}" data-param="${p.name}" data-in="${p.in}" placeholder="${p.ex||''}" value="${p.ex||''}"/>
+      <input class="fi" id="${id}" data-param="${p.name}" data-in="${p.in}" placeholder="${p.ex||p.desc||''}" value=""/>
       ${p.desc?`<div class="fhint">${p.desc}</div>`:''}</div>`;
   }
   let s='';
@@ -1348,6 +1348,16 @@ function updCurl(id){
   });
 }
 
+function syntaxHL(json){
+  const esc=json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc.replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
+    if(/^"/.test(m)) return /:\s*$/.test(m)?`<span style="color:#79c0ff">${m}</span>`:`<span style="color:#56d364">${m}</span>`;
+    if(/true|false/.test(m)) return `<span style="color:#f8a261">${m}</span>`;
+    if(/null/.test(m)) return `<span style="color:#6a737d">${m}</span>`;
+    return `<span style="color:#FFB163">${m}</span>`;
+  });
+}
+
 async function execReq(id){
   const ep=getEp(id); if(!ep)return;
   const inputs=getInputs(id);
@@ -1384,12 +1394,12 @@ async function execReq(id){
     sc.textContent=res.status+' '+res.statusText;
     sc.className='resp-sc '+(res.ok?'sc-ok':'sc-err');
     ms.textContent=elapsed+'ms';
-    body.textContent=pretty;
+    body.innerHTML=syntaxHL(pretty);
     wrap.classList.add('show');
   }catch(err){
     sc.textContent='Network Error'; sc.className='resp-sc sc-err';
     ms.textContent='';
-    body.textContent=err.message+'\n\nIf you see a CORS error, the browser blocked the request due to cross-origin policy. Use cURL or Postman to test outside the browser.';
+    body.innerHTML=`<span style="color:#f87171">${err.message}</span>\n\n<span style="color:#6a737d">If you see a CORS error, the browser blocked the request due to cross-origin policy.\nUse cURL or Postman to test outside the browser.</span>`;
     wrap.classList.add('show');
   }finally{
     btn.disabled=false;
