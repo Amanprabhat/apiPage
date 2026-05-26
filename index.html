@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Knowmax API Reference</title>
+<title>API Reference | Knowmax Developers</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -79,8 +79,12 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 .sb-quick a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
 .sb-quick a.on{background:rgba(255,177,99,.12);color:var(--gold);border-color:rgba(255,177,99,.2)}
 .sb-hr{margin:10px 0;height:1px;background:rgba(255,255,255,.07)}
-.sb-tag{padding:10px 16px 5px;font-size:9px;font-weight:800;letter-spacing:.14em;
-  text-transform:uppercase;color:rgba(255,255,255,.25)}
+.sb-tag-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 5px 16px}
+.sb-tag{font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.25)}
+.sb-toggle-all{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.3);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;
+  cursor:pointer;font-family:inherit;letter-spacing:.04em;text-transform:uppercase;transition:.15s}
+.sb-toggle-all:hover{background:rgba(255,255,255,.12);color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.25)}
 .sb-grp{margin:0}
 .sb-grp-hdr{display:flex;align-items:center;justify-content:space-between;
   padding:8px 12px 8px 16px;cursor:pointer;user-select:none;transition:.15s}
@@ -220,7 +224,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 .sec-title{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
 .sec-badge{background:rgba(9,102,123,.1);color:var(--teal2);
   font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;border:1px solid rgba(9,102,123,.2)}
-.sec-desc{font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.65;max-width:680px}
+.sec-desc{font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.65}
 .ep-group{margin-bottom:48px}
 
 /* ── ENDPOINT CARD ── */
@@ -487,7 +491,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
   </a>
   <div class="hdr-pipe"></div>
   <span class="hdr-name">API Reference</span>
-  <span class="hdr-ver">v2.0</span>
+  <span class="hdr-ver">v1.0</span>
   <div class="hdr-gap"></div>
   <div class="region-group">
     <span class="region-label">Region</span>
@@ -518,7 +522,10 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
       <a href="#headers">&#128196; Common Headers</a>
     </div>
     <div class="sb-hr"></div>
-    <div class="sb-tag">API Endpoints</div>
+    <div class="sb-tag-row">
+      <span class="sb-tag">API Endpoints</span>
+      <button class="sb-toggle-all" id="sbToggleAll" onclick="toggleAllGroups()">Expand All</button>
+    </div>
     <div id="sbGroups"></div>
   </div>
 </nav>
@@ -531,9 +538,9 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 <div class="hero sec-anchor" id="gs">
   <div class="hero-grid">
     <div>
-      <div class="hero-chip"><span class="hero-chip-dot"></span>Public REST API</div>
-      <h1>Knowmax API Reference</h1>
-      <p class="hero-sub">Integrate Knowmax's knowledge management platform into your products. Access articles, FAQs, flows, AI search, decision trees, and more through a single, consistent REST API.</p>
+      <div class="hero-chip"><span class="hero-chip-dot"></span>Public REST API &nbsp;·&nbsp; v1.0</div>
+      <h1>Knowmax Developer API</h1>
+      <p class="hero-sub">Build smarter support experiences by integrating Knowmax's knowledge management platform directly into your products. Retrieve articles, FAQs, decision trees, AI-powered answers, and more — all through a single, consistent REST API.</p>
       <div class="hero-pills">
         <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>REST over HTTPS</span>
         <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>JSON responses</span>
@@ -647,7 +654,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 </div>
 
 <footer class="footer">
-  Knowmax API Reference &nbsp;&bull;&nbsp; v2.0.0 &nbsp;&bull;&nbsp;
+  Knowmax API Reference &nbsp;&bull;&nbsp; v1.0 &nbsp;&bull;&nbsp;
   <a href="https://knowmax.ai" target="_blank">knowmax.ai</a> &nbsp;&bull;&nbsp;
   API support: <a href="mailto:support@knowmax.ai">support@knowmax.ai</a>
 </footer>
@@ -1315,6 +1322,7 @@ function buildAll(){
   // open first sidebar group
   const e0=document.getElementById('sbeps-0'),c0=document.getElementById('sbch-0');
   if(e0){e0.classList.add('open');c0.classList.add('open')}
+  updToggleAllBtn();
 
   setTimeout(initSpy,600);
 }
@@ -1332,6 +1340,23 @@ function toggleCard(id){
 function togSbGrp(i){
   const e=document.getElementById('sbeps-'+i),c=document.getElementById('sbch-'+i);
   e.classList.toggle('open');c.classList.toggle('open');
+  updToggleAllBtn();
+}
+
+function toggleAllGroups(){
+  const anyOpen=document.querySelectorAll('.sb-eps.open').length>0;
+  GROUPS.forEach((_,i)=>{
+    document.getElementById('sbeps-'+i).classList.toggle('open',!anyOpen);
+    document.getElementById('sbch-'+i).classList.toggle('open',!anyOpen);
+  });
+  updToggleAllBtn();
+}
+
+function updToggleAllBtn(){
+  const btn=document.getElementById('sbToggleAll');
+  if(!btn)return;
+  const anyOpen=document.querySelectorAll('.sb-eps.open').length>0;
+  btn.textContent=anyOpen?'Collapse All':'Expand All';
 }
 
 function actSb(id){
