@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Knowmax API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0d1f28;--ink2:#3d5562;--ink3:#7a9aaa;
+  --teal:#052B33;--teal2:#09667B;--teal3:#0a8fa8;
+  --gold:#FFB163;--gold2:#ffd4a0;--gold3:#fff0dc;
+  --green:#00c48c;--red:#f05252;--amber:#f59e0b;--purple:#8b5cf6;
+  --bg:#e8eef3;--surface:#ffffff;--surface2:#f2f6f9;
+  --border:#d4dfe8;--border2:#b8ccd8;
+  --shadow-sm:0 2px 8px rgba(5,43,51,.1),0 1px 3px rgba(5,43,51,.08);
+  --shadow:0 6px 24px rgba(5,43,51,.13),0 2px 8px rgba(5,43,51,.08);
+  --shadow-lg:0 16px 48px rgba(5,43,51,.18),0 6px 16px rgba(5,43,51,.1);
+  --shadow-xl:0 32px 80px rgba(5,43,51,.22),0 8px 24px rgba(5,43,51,.12);
+  --r:12px;--r2:7px;
+  --sb:272px;--hdr:60px;
+  --get:#0e9f6e;--get-bg:#ecfdf5;--get-border:#6ee7b7;
+  --post:#d97706;--post-bg:#fffbeb;--post-border:#fcd34d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(rgba(9,102,123,.05) 1px,transparent 1px);
+  background-size:28px 28px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(5,43,51,.18);border-radius:10px}
+
+/* ── HEADER ── */
+.hdr{position:fixed;inset:0 0 auto 0;z-index:300;height:var(--hdr);
+  background:linear-gradient(90deg,#041e25 0%,#052B33 40%,#063340 100%);
+  display:flex;align-items:center;padding:0 24px;gap:14px;
+  box-shadow:0 2px 20px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.06)}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.logo-img{height:26px;object-fit:contain;filter:brightness(0) invert(1)}
+.logo-text{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;display:none}
+.hdr-pipe{width:1px;height:22px;background:rgba(255,255,255,.15)}
+.hdr-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.75);letter-spacing:.01em}
+.hdr-ver{background:rgba(255,177,99,.2);color:var(--gold);font-size:10px;font-weight:800;
+  padding:3px 8px;border-radius:20px;border:1px solid rgba(255,177,99,.35);letter-spacing:.06em}
+.hdr-gap{flex:1}
+.region-group{display:flex;align-items:center;gap:8px}
+.region-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em}
+.region-sel{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:#fff;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;
+  font-family:inherit;cursor:pointer;outline:none;transition:.15s}
+.region-sel:focus{border-color:var(--gold)}
+.region-sel option{background:#0d2d38}
+.hdr-nav{display:flex;gap:2px}
+.hdr-nav a{color:rgba(255,255,255,.55);text-decoration:none;font-size:12px;font-weight:500;
+  padding:5px 10px;border-radius:5px;transition:.15s}
+.hdr-nav a:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* ── LAYOUT ── */
+.page{display:flex;padding-top:var(--hdr);min-height:100vh;width:100%}
+
+/* ── SIDEBAR ── */
+.sb{position:fixed;top:var(--hdr);left:0;bottom:0;width:var(--sb);
+  background:linear-gradient(180deg,#052B33 0%,#041f26 100%);
+  overflow-y:auto;z-index:200;
+  display:flex;flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.06);
+  box-shadow:4px 0 24px rgba(0,0,0,.25)}
+.sb::after{content:'';position:fixed;bottom:0;left:0;width:var(--sb);height:80px;
+  background:linear-gradient(to top,#041f26 0%,transparent 100%);
+  pointer-events:none;z-index:201}
+.sb-top{padding:16px 16px 8px}
+.sb-quick a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;
+  color:rgba(255,255,255,.55);font-size:12px;font-weight:500;text-decoration:none;
+  transition:.15s;border:1px solid transparent}
+.sb-quick a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.sb-quick a.on{background:rgba(255,177,99,.12);color:var(--gold);border-color:rgba(255,177,99,.2)}
+.sb-hr{margin:10px 0;height:1px;background:rgba(255,255,255,.07)}
+.sb-tag{padding:10px 16px 5px;font-size:9px;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.25)}
+.sb-grp{margin:0}
+.sb-grp-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px 8px 16px;cursor:pointer;user-select:none;transition:.15s}
+.sb-grp-hdr:hover{background:rgba(255,255,255,.05)}
+.sb-grp-left{display:flex;align-items:center;gap:7px}
+.sb-grp-icon{font-size:13px;width:20px;text-align:center}
+.sb-grp-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+.sb-grp-n{font-size:9px;font-weight:700;background:rgba(255,255,255,.1);
+  color:rgba(255,255,255,.35);padding:2px 6px;border-radius:8px}
+.sb-chev{transition:transform .25s;opacity:.35;flex-shrink:0}
+.sb-chev.open{transform:rotate(90deg);opacity:.7}
+.sb-eps{overflow:hidden;max-height:0;transition:max-height .3s ease}
+.sb-eps.open{max-height:1400px}
+.sb-ep{display:flex;align-items:center;gap:7px;padding:6px 12px 6px 28px;
+  text-decoration:none;border-left:2px solid transparent;cursor:pointer;transition:.15s}
+.sb-ep:hover{background:rgba(255,255,255,.06);border-left-color:rgba(255,255,255,.2)}
+.sb-ep.on{background:rgba(255,177,99,.13);border-left-color:var(--gold);box-shadow:inset 0 1px 0 rgba(255,177,99,.1),inset 0 -1px 0 rgba(255,177,99,.1)}
+.sb-ep-txt{font-size:11px;color:rgba(255,255,255,.45);line-height:1.3;flex:1;transition:.15s}
+.sb-ep:hover .sb-ep-txt{color:rgba(255,255,255,.8)}
+.sb-ep.on .sb-ep-txt{color:rgba(255,177,99,.85)}
+.mbadge{font-size:8px;font-weight:800;padding:2px 5px;border-radius:3px;
+  letter-spacing:.05em;flex-shrink:0;text-transform:uppercase}
+.mbadge.get{background:rgba(0,196,140,.2);color:#00c48c}
+.mbadge.post{background:rgba(249,115,22,.2);color:#fb923c}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sb);flex:1;min-width:0;width:calc(100% - var(--sb));padding:32px 48px 80px}
+.main-inner{max-width:100%}
+
+/* ── HERO ── */
+.hero{border-radius:16px;overflow:hidden;margin-bottom:28px;position:relative;
+  background:linear-gradient(135deg,#041e25 0%,#07374a 40%,#09667B 100%);
+  box-shadow:var(--shadow-xl),0 0 0 1px rgba(255,255,255,.06)}
+.hero::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(255,177,99,.12) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 60% at 10% 100%,rgba(9,102,123,.25) 0%,transparent 50%);
+  pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr auto;align-items:center;padding:44px 48px;gap:24px;position:relative;z-index:1}
+.hero-chip{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,177,99,.15);border:1px solid rgba(255,177,99,.3);
+  color:var(--gold);font-size:10px;font-weight:800;letter-spacing:.08em;
+  padding:4px 12px;border-radius:20px;margin-bottom:14px}
+.hero-chip-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px;letter-spacing:-.02em}
+.hero-sub{color:rgba(255,255,255,.6);font-size:13px;max-width:480px;line-height:1.7}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.hero-pill{display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.75);font-size:11px;font-weight:600;
+  padding:5px 12px;border-radius:20px}
+.hero-pill svg{opacity:.6}
+.hero-art{position:relative;width:180px;flex-shrink:0}
+.hero-art-ring{width:140px;height:140px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.03)}
+.hero-art-inner{width:90px;height:90px;border-radius:50%;
+  background:rgba(255,177,99,.12);border:1.5px solid rgba(255,177,99,.2);
+  display:flex;align-items:center;justify-content:center;font-size:36px}
+
+/* ── QUICK CARDS ── */
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:22px;box-shadow:var(--shadow);transition:.25s;position:relative;overflow:hidden}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal2),var(--teal3));opacity:0;transition:.25s}
+.qcard:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.qcard:hover::before{opacity:1}
+.qcard-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;margin-bottom:10px}
+.qcard-icon.teal{background:linear-gradient(135deg,#052B33,#09667B)}
+.qcard-icon.gold{background:linear-gradient(135deg,#b86200,#FFB163)}
+.qcard-icon.green{background:linear-gradient(135deg,#065f46,#00c48c)}
+.qcard-title{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.qcard-body{font-size:12px;color:var(--ink2);line-height:1.55}
+.qcard-body code{background:rgba(9,102,123,.1);color:var(--teal2);padding:1px 5px;
+  border-radius:3px;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600}
+
+/* ── CALLOUT ── */
+.callout{display:flex;gap:12px;padding:14px 16px;border-radius:var(--r);margin:16px 0}
+.callout-info{background:rgba(9,102,123,.06);border:1px solid rgba(9,102,123,.18)}
+.callout-warn{background:#fffbeb;border:1px solid #fcd34d}
+.callout-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.callout-text{font-size:12px;color:var(--ink2);line-height:1.6}
+.callout-text strong{color:var(--ink);font-weight:700}
+.callout-text code{background:rgba(9,102,123,.1);color:var(--teal2);padding:1px 5px;
+  border-radius:3px;font-family:"JetBrains Mono",monospace;font-size:11px}
+
+/* ── CODE ── */
+.code{background:#0d1e28;border-radius:var(--r);overflow:hidden;margin:12px 0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.code-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
+.code-lang{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em}
+.code-dots{display:flex;gap:5px}
+.code-dot{width:9px;height:9px;border-radius:50%}
+.code-pre{padding:14px 16px;font-family:"JetBrains Mono",monospace;font-size:12px;
+  line-height:1.7;color:#cdd9e5;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+.tok-m{color:var(--gold)}.tok-k{color:#79c0ff}.tok-v{color:#a8d5a2}
+.tok-s{color:#56d364}.tok-c{color:#6a737d;font-style:italic}.tok-u{color:#79c0ff}
+.copy-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.45);padding:3px 10px;border-radius:4px;
+  font-size:10px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;letter-spacing:.04em}
+.copy-btn:hover{background:rgba(255,255,255,.16);color:#fff}
+.copy-btn.ok{color:var(--green);border-color:var(--green);background:rgba(0,196,140,.1)}
+
+/* ── URL BOX ── */
+.url-box{display:flex;align-items:center;gap:12px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);padding:11px 15px;margin:10px 0;
+  box-shadow:var(--shadow-sm)}
+.url-lbl{font-size:9px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.url-sep{width:1px;height:16px;background:var(--border)}
+.url-val{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--teal2);font-weight:600}
+
+/* ── TABLE ── */
+.tbl{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin:12px 0;
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.9)}
+.tbl table{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--surface2);padding:9px 14px;text-align:left;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--ink3);border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 14px;border-bottom:1px solid #f0f4f7;color:var(--ink2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f9fbfc}
+.tbl td code{background:rgba(9,102,123,.08);color:var(--teal2);padding:2px 6px;
+  border-radius:3px;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600}
+
+/* ── SECTION ── */
+.sec-anchor{scroll-margin-top:calc(var(--hdr)+20px)}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:8px;
+  padding:22px 0 16px;border-bottom:2px solid var(--border)}
+.sec-icon-wrap{width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  background:linear-gradient(135deg,var(--teal) 0%,var(--teal2) 100%);
+  box-shadow:0 6px 16px rgba(9,102,123,.4),0 2px 4px rgba(9,102,123,.2)}
+.sec-title{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.sec-badge{background:rgba(9,102,123,.1);color:var(--teal2);
+  font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;border:1px solid rgba(9,102,123,.2)}
+.sec-desc{font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.65;max-width:680px}
+.ep-group{margin-bottom:48px}
+
+/* ── ENDPOINT CARD ── */
+.ep-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);transition:.25s;position:relative}
+.ep-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.ep-card.get-card{border-left:5px solid #0e9f6e}
+.ep-card.post-card{border-left:5px solid #d97706}
+.ep-card.get-card .ep-hdr{background:linear-gradient(90deg,rgba(14,159,110,.04) 0%,transparent 40%)}
+.ep-card.post-card .ep-hdr{background:linear-gradient(90deg,rgba(217,119,6,.04) 0%,transparent 40%)}
+.ep-hdr{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;
+  user-select:none;transition:.15s}
+.ep-hdr:hover{background:var(--surface2)}
+.mpill{display:inline-flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;letter-spacing:.08em;padding:5px 12px;
+  border-radius:6px;min-width:54px;text-transform:uppercase;flex-shrink:0}
+.mpill-get{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;
+  border:1px solid var(--get-border);box-shadow:0 2px 6px rgba(14,159,110,.2)}
+.mpill-post{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;
+  border:1px solid var(--post-border);box-shadow:0 2px 6px rgba(217,119,6,.2)}
+.ep-path-txt{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:500;
+  color:var(--ink);flex:1;min-width:0}
+.ep-path-txt .pp{color:var(--teal2);font-weight:600}
+.ep-summ{font-size:12px;color:var(--ink3);white-space:nowrap;padding-left:12px;
+  font-weight:500}
+.ep-chev{width:18px;height:18px;color:var(--ink3);transition:transform .25s;flex-shrink:0}
+.ep-chev.open{transform:rotate(180deg)}
+.ep-body{display:none;border-top:1px solid var(--border)}
+.ep-body.open{display:block}
+
+/* ── EP SECTION ── */
+.ep-sec{padding:18px 20px;border-bottom:1px solid #f0f4f7}
+.ep-sec:last-child{border-bottom:none}
+.ep-sec-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink3);margin-bottom:12px}
+.ep-desc-txt{font-size:13px;color:var(--ink2);line-height:1.7}
+.ep-desc-txt code{background:rgba(9,102,123,.08);color:var(--teal2);padding:1px 5px;
+  border-radius:3px;font-family:"JetBrains Mono",monospace;font-size:12px}
+
+/* ── PARAM TABLE ── */
+.pt{width:100%;border-collapse:collapse}
+.pt th{background:var(--surface2);padding:8px 12px;text-align:left;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--ink3);border-bottom:1px solid var(--border)}
+.pt td{padding:10px 12px;border-bottom:1px solid #f0f4f7;vertical-align:top}
+.pt tr:last-child td{border-bottom:none}
+.pt tr:hover td{background:#fafcfd}
+.pname{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--teal)}
+.rtag{display:inline-block;background:#fef2f2;color:#c81e1e;font-size:8px;font-weight:800;
+  padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.06em;margin-left:5px}
+.otag{display:inline-block;background:var(--surface2);color:var(--ink3);font-size:8px;
+  font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.06em;margin-left:5px}
+.iloc{display:inline-flex;align-items:center;background:rgba(9,102,123,.08);
+  color:var(--teal2);font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.05em}
+.itype{font-family:"JetBrains Mono",monospace;color:var(--ink2);font-size:11px}
+.iex{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ink3);margin-top:2px}
+.ienums{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.iev{background:rgba(9,102,123,.06);color:var(--teal2);font-size:9px;font-weight:600;
+  padding:2px 6px;border-radius:3px;font-family:"JetBrains Mono",monospace;
+  border:1px solid rgba(9,102,123,.14)}
+.idesc{color:var(--ink2);font-size:11px;line-height:1.4;margin-top:3px}
+
+/* ── RESPONSE CODES ── */
+.rc-list{display:flex;flex-direction:column;gap:7px}
+.rc{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:7px;border:1px solid}
+.rc-ok{background:#ecfdf5;border-color:#a7f3d0}
+.rc-redir{background:#eff6ff;border-color:#bfdbfe}
+.rc-warn{background:#fffbeb;border-color:#fcd34d}
+.rc-err{background:#fef2f2;border-color:#fecaca}
+.rc-code{font-size:13px;font-weight:800;min-width:38px;line-height:1}
+.rc-ok .rc-code{color:#065f46}.rc-redir .rc-code{color:#1e40af}
+.rc-warn .rc-code{color:#92400e}.rc-err .rc-code{color:#991b1b}
+.rc-desc{font-size:12px;color:var(--ink2);line-height:1.5;flex:1}
+
+/* ── SCHEMA ── */
+.schema-box{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.8)}
+.stabs{display:flex;background:var(--surface2);border-bottom:1px solid var(--border)}
+.stab{padding:9px 16px;font-size:11px;font-weight:700;cursor:pointer;
+  color:var(--ink3);border:none;background:none;border-bottom:2px solid transparent;
+  font-family:inherit;transition:.15s;letter-spacing:.02em}
+.stab.on{color:var(--teal2);border-bottom-color:var(--teal2)}
+.stab-panel{display:none;padding:14px 16px}
+.stab-panel.on{display:block}
+.sf{display:flex;align-items:baseline;gap:4px;padding:3px 0;
+  font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.6}
+.sf-req{color:#c81e1e;flex-shrink:0;width:8px}
+.sf-key{color:#79c0ff}.sf-type{color:#f8a261;font-style:italic}
+.sf-ex{color:#56d364}.sf-desc{color:#7a8a9a;font-family:"Plus Jakarta Sans",sans-serif;font-size:10px}
+
+/* ── TRY IT OUT ── */
+.try-bar{display:flex;align-items:center;justify-content:space-between}
+.try-btn{display:inline-flex;align-items:center;gap:6px;
+  background:var(--teal);color:#fff;border:none;padding:7px 15px;
+  border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:.15s;letter-spacing:.02em}
+.try-btn:hover{background:var(--teal2)}
+.try-btn.stop{background:transparent;color:#c81e1e;border:1px solid #fca5a5}
+.try-btn.stop:hover{background:#fef2f2}
+.try-panel{display:none;padding:24px;
+  background:linear-gradient(180deg,#f0f5f9 0%,#eaf0f5 100%);
+  border-top:2px solid var(--border)}
+.try-panel.open{display:block}
+.try-hint{font-size:11px;color:var(--ink3);margin-bottom:16px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px}
+.tp-sec-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink3);padding:10px 0 8px;border-bottom:1px solid var(--border);
+  margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tp-sec-lbl::before{content:'';display:block;width:3px;height:12px;
+  background:var(--gold);border-radius:2px}
+.tp-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:11px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px}
+.fi{padding:8px 11px;border:1.5px solid var(--border);border-radius:6px;
+  font-size:12px;font-family:"JetBrains Mono",monospace;color:var(--ink);
+  background:var(--surface);outline:none;transition:.15s;width:100%}
+.fi:focus{border-color:var(--teal2);box-shadow:0 0 0 3px rgba(9,102,123,.1)}
+.fi::placeholder{color:var(--ink3)}
+.fsel{padding:8px 11px;border:1.5px solid var(--border);border-radius:6px;
+  font-size:12px;font-family:inherit;color:var(--ink);background:var(--surface);
+  outline:none;cursor:pointer;width:100%}
+.fsel:focus{border-color:var(--teal2)}
+.fhint{font-size:10px;color:var(--ink3);line-height:1.4}
+.tp-actions{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;
+  border-top:1px solid var(--border)}
+.exec-btn{display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#09667B 0%,#0a8fa8 100%);
+  color:#fff;border:none;padding:10px 24px;border-radius:7px;
+  font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:.2s;letter-spacing:.02em;
+  box-shadow:0 4px 14px rgba(9,102,123,.4),0 1px 0 rgba(255,255,255,.1) inset}
+.exec-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(9,102,123,.5)}
+.exec-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.clr-btn{background:transparent;color:var(--ink2);border:1.5px solid var(--border);
+  padding:9px 16px;border-radius:7px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:.15s}
+.clr-btn:hover{border-color:var(--ink2);color:var(--ink)}
+.resp-wrap{margin-top:16px;border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;display:none;box-shadow:var(--shadow)}
+.resp-wrap.show{display:block}
+.resp-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:#0d1e28;border-bottom:1px solid rgba(255,255,255,.07)}
+.resp-sc{font-size:12px;font-weight:800;padding:3px 9px;border-radius:4px}
+.sc-ok{background:rgba(0,196,140,.15);color:#00c48c}
+.sc-err{background:rgba(240,82,82,.15);color:#f87171}
+.resp-ms{font-size:10px;color:rgba(255,255,255,.3);font-family:"JetBrains Mono",monospace;margin-left:auto}
+.resp-body{background:#0d1e28;padding:14px 16px;font-family:"JetBrains Mono",monospace;
+  font-size:11px;line-height:1.75;color:#cdd9e5;overflow:auto;max-height:380px}
+
+/* ── AUTH MODAL ── */
+.auth-btn{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.28);
+  padding:7px 16px;border-radius:7px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:.15s;letter-spacing:.02em;white-space:nowrap}
+.auth-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+.auth-btn.authed{background:rgba(0,196,140,.18);border-color:#00c48c;color:#00e6a8}
+.modal-overlay{position:fixed;inset:0;background:rgba(5,43,51,.65);backdrop-filter:blur(5px);
+  z-index:9999;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:16px;padding:36px;width:500px;max-width:92vw;
+  box-shadow:0 32px 100px rgba(5,43,51,.4),0 2px 8px rgba(0,0,0,.08);
+  transform:translateY(20px) scale(.97);transition:transform .2s,opacity .2s;
+  border:1px solid rgba(9,102,123,.08)}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-icon{width:48px;height:48px;background:linear-gradient(135deg,#09667B,#0a8fa8);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;box-shadow:0 4px 16px rgba(9,102,123,.35)}
+.modal-title{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.02em}
+.modal-sub{font-size:13px;color:var(--ink2);margin-bottom:22px;line-height:1.55}
+.modal-status-banner{display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-radius:9px;margin-bottom:20px;font-size:12px;font-weight:600;border:1px solid}
+.msb-ok{background:rgba(0,196,140,.08);color:#047857;border-color:rgba(0,196,140,.3)}
+.msb-ok::before{content:'';width:8px;height:8px;background:#00c48c;border-radius:50%;flex-shrink:0}
+.modal-field-label{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;letter-spacing:.04em;text-transform:uppercase}
+.modal-input-wrap{position:relative}
+.modal-input{width:100%;padding:12px 44px 12px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-size:13px;font-family:"JetBrains Mono",monospace;color:var(--ink);
+  background:#fafbfc;outline:none;transition:.15s;box-sizing:border-box}
+.modal-input:focus{border-color:var(--teal2);box-shadow:0 0 0 3px rgba(9,102,123,.1);background:#fff}
+.modal-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--ink3);padding:4px;
+  display:flex;align-items:center;justify-content:center;transition:.15s}
+.modal-eye:hover{color:var(--ink)}
+.modal-hint{font-size:11px;color:var(--ink3);margin-top:10px;line-height:1.55;
+  padding:10px 13px;background:var(--surface2);border-radius:7px;border:1px solid var(--border)}
+.modal-footer{display:flex;align-items:center;gap:10px;margin-top:24px;
+  padding-top:20px;border-top:1px solid var(--border)}
+.modal-revoke{background:transparent;color:#e11d48;border:1.5px solid #fca5a5;
+  padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:.15s;margin-right:auto}
+.modal-revoke:hover{background:#fef2f2;border-color:#e11d48}
+.modal-cancel{background:transparent;color:var(--ink2);border:1.5px solid var(--border);
+  padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:.15s}
+.modal-cancel:hover{border-color:var(--ink2);color:var(--ink)}
+.modal-save{background:linear-gradient(135deg,#09667B 0%,#0a8fa8 100%);color:#fff;
+  border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:.2s;
+  box-shadow:0 4px 14px rgba(9,102,123,.35)}
+.modal-save:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(9,102,123,.45)}
+.key-notice{display:flex;align-items:flex-start;gap:8px;font-size:11px;font-weight:600;
+  padding:9px 12px;border-radius:7px;margin-bottom:14px}
+.key-notice.warn{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.key-notice.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+
+/* ── DIVIDER ── */
+.divider{margin:48px 0 32px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--teal) 0%,var(--teal2) 30%,rgba(9,102,123,.2) 70%,transparent 100%);
+  box-shadow:0 1px 4px rgba(9,102,123,.15)}
+
+/* ── FOOTER ── */
+.footer{margin-left:var(--sb);padding:22px 48px;text-align:center;
+  border-top:2px solid var(--border);
+  background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%);
+  font-size:11px;color:var(--ink3);
+  box-shadow:0 -4px 16px rgba(5,43,51,.05)}
+.footer a{color:var(--teal2);text-decoration:none;font-weight:600}
+
+/* ── GETTING STARTED ── */
+.gs-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:28px;margin-bottom:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.gs-card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--teal2),var(--teal3))}
+.gs-h{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.gs-p{font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:14px}
+
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.25);
+  border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:800px){
+  .sb,.footer{display:none}
+  .main{margin-left:0}
+  .quick-grid{grid-template-columns:1fr 1fr}
+  .hero-art{display:none}
+  .hero-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a class="logo-wrap" href="#">
+    <img class="logo-img" src="https://knowmax-ai-website.s3.amazonaws.com/wp-content/uploads/2025/09/17162032/Group-4-1.svg" alt="Knowmax" onerror="this.style.display='none';document.querySelector('.logo-text').style.display='block'"/>
+    <span class="logo-text">Knowmax</span>
+  </a>
+  <div class="hdr-pipe"></div>
+  <span class="hdr-name">API Reference</span>
+  <span class="hdr-ver">v2.0</span>
+  <div class="hdr-gap"></div>
+  <div class="region-group">
+    <span class="region-label">Region</span>
+    <select class="region-sel" id="regionSel" onchange="setRegion(this.value)">
+      <option value="IN">IN - India</option>
+      <option value="ME">ME - Middle East</option>
+      <option value="EU">EU - Europe</option>
+      <option value="US">US - United States</option>
+    </select>
+  </div>
+  <nav class="hdr-nav">
+    <a href="#gs">Getting Started</a>
+    <a href="#auth">Auth</a>
+    <a href="#regions">Regions</a>
+  </nav>
+  <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Authorize
+  </button>
+</header>
+
+<nav class="sb" id="sb">
+  <div class="sb-top">
+    <div class="sb-quick">
+      <a href="#gs" class="on">&#127968; Overview</a>
+      <a href="#auth">&#128273; Authentication</a>
+      <a href="#regions">&#127760; Regions &amp; Base URL</a>
+      <a href="#headers">&#128196; Common Headers</a>
+    </div>
+    <div class="sb-hr"></div>
+    <div class="sb-tag">API Endpoints</div>
+    <div id="sbGroups"></div>
+  </div>
+</nav>
+
+<div class="page">
+<main class="main">
+<div class="main-inner">
+
+<!-- HERO -->
+<div class="hero sec-anchor" id="gs">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-chip"><span class="hero-chip-dot"></span>Public REST API</div>
+      <h1>Knowmax API Reference</h1>
+      <p class="hero-sub">Integrate Knowmax's knowledge management platform into your products. Access articles, FAQs, flows, AI search, decision trees, and more through a single, consistent REST API.</p>
+      <div class="hero-pills">
+        <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>REST over HTTPS</span>
+        <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>JSON responses</span>
+        <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>API Key auth</span>
+        <span class="hero-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>4 global regions</span>
+        <span class="hero-pill">26 endpoints</span>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="hero-art-ring"><div class="hero-art-inner">&#128312;</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK CARDS -->
+<div class="quick-grid">
+  <div class="qcard">
+    <div class="qcard-icon teal">&#128273;</div>
+    <div class="qcard-title">Authentication</div>
+    <div class="qcard-body">Pass your API key in the <code>x-api-key</code> header on every request. Obtain your key from Knowmax admin under Settings &gt; Integrations.</div>
+  </div>
+  <div class="qcard">
+    <div class="qcard-icon gold">&#128260;</div>
+    <div class="qcard-title">Tenant Subdomain</div>
+    <div class="qcard-body">Your tenant name is the path segment in your Knowmax URL. For <code>in-next.knowmax.ai/acme/home</code>, the subdomain value is <code>acme</code>. Pass it as a header on every request.</div>
+  </div>
+  <div class="qcard">
+    <div class="qcard-icon green">&#127758;</div>
+    <div class="qcard-title">Multi-Region</div>
+    <div class="qcard-body">Use the region selector above to get the correct base URL. Your region (<code>IN</code>, <code>ME</code>, <code>EU</code>, <code>US</code>) is determined when your Knowmax instance is provisioned.</div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="gs-card sec-anchor" id="auth">
+  <div class="gs-h">&#128273; Authentication</div>
+  <p class="gs-p">All API requests must include a valid <strong>x-api-key</strong> header. Requests without a key, or with an invalid key, will receive a <strong>403 Forbidden</strong> response. API keys are scoped per tenant and can be rotated from the Knowmax admin panel.</p>
+  <div class="code">
+    <div class="code-bar"><div class="code-dots"><div class="code-dot" style="background:#f05252"></div><div class="code-dot" style="background:#f59e0b"></div><div class="code-dot" style="background:#00c48c"></div></div><span class="code-lang">cURL example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-pre"><span class="tok-m">GET</span> <span class="tok-u">https://in-manage.knowmax.ai/api/v1/articles</span>
+<span class="tok-c"># Required on every request</span>
+<span class="tok-k">x-api-key:</span> <span class="tok-v">your_api_key_here</span>
+<span class="tok-k">subdomain:</span> <span class="tok-v">your_tenant_name</span>
+<span class="tok-k">Content-Type:</span> <span class="tok-v">application/json</span></div>
+  </div>
+</div>
+
+<!-- REGIONS -->
+<div class="gs-card sec-anchor" id="regions">
+  <div class="gs-h">&#127760; Regions &amp; Base URL</div>
+  <p class="gs-p">The base URL is region-specific. Select your region in the header above to auto-populate example URLs throughout this reference. Your region is fixed at the time your Knowmax instance is provisioned.</p>
+  <div class="url-box"><span class="url-lbl">Active Base URL</span><div class="url-sep"></div><span class="url-val" id="baseUrlDisplay">https://in-manage.knowmax.ai</span></div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Region</th><th>Code</th><th>Base URL</th><th>Client Portal URL Pattern</th></tr></thead>
+      <tbody>
+        <tr><td>India</td><td><code>IN</code></td><td><code>https://in-manage.knowmax.ai</code></td><td><code>https://in-next.knowmax.ai/{tenant}/home</code></td></tr>
+        <tr><td>Middle East</td><td><code>ME</code></td><td><code>https://me-manage.knowmax.ai</code></td><td><code>https://me-next.knowmax.ai/{tenant}/home</code></td></tr>
+        <tr><td>Europe</td><td><code>EU</code></td><td><code>https://eu-manage.knowmax.ai</code></td><td><code>https://eu-next.knowmax.ai/{tenant}/home</code></td></tr>
+        <tr><td>United States</td><td><code>US</code></td><td><code>https://us-manage.knowmax.ai</code></td><td><code>https://us-next.knowmax.ai/{tenant}/home</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- COMMON HEADERS -->
+<div class="gs-card sec-anchor" id="headers">
+  <div class="gs-h">&#128196; Common Headers</div>
+  <p class="gs-p">These headers apply to all or most endpoints. Always include <code>x-api-key</code> and <code>subdomain</code>.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Header</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>x-api-key</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your Knowmax API key for authentication</td></tr>
+        <tr><td><code>subdomain</code></td><td><span style="color:#c81e1e;font-weight:700">Yes</span></td><td>Your client tenant name - the path segment in your Knowmax portal URL. Example: from <code>https://in-next.knowmax.ai/acme/home</code> the value is <code>acme</code></td></tr>
+        <tr><td><code>language</code></td><td>No</td><td>Language code for localized content (e.g. <code>en</code>, <code>ar</code>). Use the Languages endpoint to get all enabled codes for your tenant.</td></tr>
+        <tr><td><code>Content-Type</code></td><td>POST only</td><td>Must be <code>application/json</code> for all POST requests with a body</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-warn">
+    <span class="callout-icon">&#9888;&#65039;</span>
+    <div class="callout-text"><strong>Session tracking:</strong> Endpoints that support session tracking require a <code>sessionId</code> obtained from the corresponding <code>POST /{id}/session</code> endpoint. Create a session first, then pass its ID in subsequent calls to enable analytics and interaction history.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ENDPOINT GROUPS (JS rendered) -->
+<div id="epGroups"></div>
+
+</div><!-- /main-inner -->
+</main>
+</div>
+
+<footer class="footer">
+  Knowmax API Reference &nbsp;&bull;&nbsp; v2.0.0 &nbsp;&bull;&nbsp;
+  <a href="https://knowmax.ai" target="_blank">knowmax.ai</a> &nbsp;&bull;&nbsp;
+  API support: <a href="mailto:support@knowmax.ai">support@knowmax.ai</a>
+</footer>
+
+<script>
+const REGIONS={IN:'https://in-manage.knowmax.ai',ME:'https://me-manage.knowmax.ai',EU:'https://eu-manage.knowmax.ai',US:'https://us-manage.knowmax.ai'};
+let curRegion='IN';
+function setRegion(r){curRegion=r;document.getElementById('baseUrlDisplay').textContent=REGIONS[r];}
+
+// ── DATA ──────────────────────────────────────────────────────
+const GROUPS=[
+{id:'categories',name:'Categories',icon:'&#128193;',
+ desc:'Manage and navigate the hierarchical category structure of your knowledge base. Categories organize content by topic and can be nested multiple levels deep.',
+ endpoints:[
+  {id:'get-root-cats',method:'GET',path:'/api/v1/categories',summary:'Fetch Root Categories',
+   desc:'Returns all top-level (root) categories for the specified tenant. Use the optional <code>moduleType</code> parameter to filter categories by content type.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name - the path segment from your Knowmax portal URL (e.g. kmdemo from in-next.knowmax.ai/kmdemo/home)'},
+    {name:'moduleType',in:'query',req:false,type:'string',ex:'article',desc:'Filter categories by module type',enum:['article','faq','document','pg','decision-trees','sop']},
+    {name:'language',in:'header',req:false,type:'string',ex:'en',desc:'Language code for localized category names'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Root categories fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden. Invalid or missing API key.'}],
+   schema:{name:'ResGetCategories',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200',desc:'HTTP status code'},
+    {key:'errors',type:'array',req:true,ex:'[]',desc:'Errors array'},
+    {key:'result',type:'array',req:true,desc:'List of root category objects',nested:[
+     {key:'id',type:'string',req:true,ex:'"cls1rigo800051218cv613s5t"'},
+     {key:'name',type:'string',req:true,ex:'"Online Shopping"'},
+     {key:'position',type:'number',req:true,ex:'0'},
+     {key:'level',type:'number',req:true,ex:'0',desc:'0 = root level'},
+     {key:'media',type:'object',req:false,desc:'Category thumbnail {name, id, path}'}
+    ]}
+   ]}
+  },
+  {id:'search-cats',method:'GET',path:'/api/v1/categories/search',summary:'Search Categories',
+   desc:'Search categories by name. Minimum 3 characters required. Returns matched categories with their parent hierarchy sorted by level descending.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'q',in:'query',req:true,type:'string',ex:'mobile',desc:'Search query. Minimum 3 characters.'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Categories searched successfully.'},{code:400,cls:'rc-err',desc:'Bad Request. Query too short.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResCategorySearch',fields:[
+    {key:'id',type:'string',req:true},{key:'name',type:'string',req:true},
+    {key:'level',type:'number',req:true},{key:'position',type:'number',req:true},
+    {key:'children',type:'array',req:false,desc:'Child category objects'},
+    {key:'parents',type:'array',req:false,desc:'Parent categories sorted by level descending'}
+   ]}
+  },
+  {id:'get-cat-by-id',method:'GET',path:'/api/v1/categories/{id}',summary:'Fetch Child Categories',
+   desc:'Returns all child categories under a given parent category ID. Use this to traverse the category tree level by level.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'cls1rigo800051218cv613s5t',desc:'ID of the parent category'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'moduleType',in:'query',req:false,type:'string',ex:'article',enum:['article','faq','document','pg','decision-trees','sop']},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Child categories fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetCategories',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'array',req:true,desc:'Child category objects'}]}
+  }
+ ]},
+{id:'faqs',name:'FAQs',icon:'&#10067;',
+ desc:'Access FAQ content from your knowledge base. FAQs are structured question-answer pairs that support session tracking for analytics.',
+ endpoints:[
+  {id:'get-faqs',method:'GET',path:'/api/v1/faqs',summary:'Fetch FAQs',
+   desc:'Returns a paginated list of FAQs. Filter by category name, set pagination, and control sort order.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
+    {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10',desc:'Results per page'},
+    {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction',enum:['-1','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'FAQs fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetFaqs',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'data',type:'array',req:true,desc:'List of FAQ objects'},
+     {key:'totalCount',type:'number',req:true,ex:'10',desc:'Total matching FAQs'}
+    ]}
+   ]}
+  },
+  {id:'get-faq-by-title',method:'GET',path:'/api/v1/faqs/title/{title}',summary:'Fetch FAQ by Title',
+   desc:'Retrieve a single FAQ by its title. Useful when you have a known FAQ name and want to deep-link directly.',
+   params:[
+    {name:'title',in:'path',req:true,type:'string',desc:'URL-encoded title of the FAQ'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id',desc:'Analytics context identifier (e.g. agent ID)'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'FAQ fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetFaq',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"',desc:'Human-readable unique ID'},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},{key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'steps',type:'array',req:true,desc:'Q&A steps [{question, answer, sort}]'}
+    ]}
+   ]}
+  },
+  {id:'get-faq-by-id',method:'GET',path:'/api/v1/faqs/{id}',summary:'Fetch FAQ by ID',
+   desc:'Retrieve full FAQ detail by ID. Supports session tracking - pass <code>session=true</code> and a <code>sessionId</code> to log this view.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'clrj9lbb2000224pot074zf06',desc:'ID of the FAQ'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id'},
+    {name:'sessionId',in:'query',req:false,type:'string',ex:'clrj9lbb2000224pot074zf06',desc:'Active session ID'},
+    {name:'session',in:'query',req:false,type:'boolean',ex:'false',desc:'Enable session support'},
+    {name:'status',in:'query',req:false,type:'number',ex:'1',desc:'1=published, 0=draft',enum:['0','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'FAQ fetched successfully.'},{code:400,cls:'rc-err',desc:'Bad Request.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
+   schema:{name:'ResGetFaq',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,desc:'Full FAQ with steps array'}]}
+  },
+  {id:'create-faq-session',method:'POST',path:'/api/v1/faqs/{id}/session',summary:'Create FAQ Session',
+   desc:'Initiates a new session for a FAQ. The returned session ID is passed to subsequent FAQ fetch calls to track the complete user interaction.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',desc:'ID of the FAQ'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   responses:[{code:201,cls:'rc-ok',desc:'Session created successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSession',fields:[{key:'statusCode',type:'number',req:true,ex:'201'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'id',type:'string',req:true,desc:'Session ID to use in subsequent requests'}]}]}
+  }
+ ]},
+{id:'documents',name:'Documents',icon:'&#128196;',
+ desc:'Access document-type knowledge content including rich HTML, media attachments, and reference URLs.',
+ endpoints:[
+  {id:'get-docs',method:'GET',path:'/api/v1/document',summary:'Fetch Documents',
+   desc:'Returns a paginated list of published documents. Filter by category and control sort order.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
+    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Documents fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetDocuments',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'get-doc-by-id',method:'GET',path:'/api/v1/document/{id}',summary:'Fetch Document by ID',
+   desc:'Retrieve the full content of a document by ID, including HTML text, media, cross-module links, and reference URLs. Supports session tracking.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id'},
+    {name:'sessionId',in:'query',req:false,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'session',in:'query',req:false,type:'boolean',ex:'false'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Document fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
+   schema:{name:'ResGetDocument',fields:[{key:'statusCode',type:'number',req:true},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,desc:'Full document with content, media, and URLs'}]}
+  },
+  {id:'create-doc-session',method:'POST',path:'/api/v1/document/{id}/session',summary:'Create Document Session',
+   desc:'Creates a tracking session for a document interaction.',
+   params:[{name:'id',in:'path',req:true,type:'string'},{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
+   responses:[{code:201,cls:'rc-ok',desc:'Session created.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSession',fields:[{key:'result',type:'object',nested:[{key:'id',type:'string',req:true,desc:'Session ID'}]}]}
+  }
+ ]},
+{id:'articles',name:'Articles',icon:'&#128221;',
+ desc:'Retrieve rich-text article content including HTML formatting, media, cross-module linking, and session tracking support.',
+ endpoints:[
+  {id:'get-articles',method:'GET',path:'/api/v1/articles',summary:'Fetch Articles',
+   desc:'Returns a paginated list of published articles. Filter by category and control sort order.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
+    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Articles fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetArticles',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true,desc:'Article objects'},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'get-article-by-id',method:'GET',path:'/api/v1/articles/{id}',summary:'Fetch Article by ID',
+   desc:'Retrieve a complete article by ID including HTML content, attached media, cross-linked modules, and reference URLs. Supports session tracking.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id'},
+    {name:'sessionId',in:'query',req:false,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'session',in:'query',req:false,type:'boolean',ex:'false'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Article fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
+   schema:{name:'ResGetArticle',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'title',type:'string',req:true},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"'},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'content',type:'object',req:true,nested:[
+      {key:'text',type:'string',req:true,desc:'HTML content string'},
+      {key:'media',type:'array',req:true,desc:'Attached media files'},
+      {key:'linkAnotherModule',type:'array',req:true,desc:'Cross-module content links'},
+      {key:'urls',type:'array',req:true,desc:'Reference URLs'}
+     ]}
+    ]}
+   ]}
+  },
+  {id:'create-article-session',method:'POST',path:'/api/v1/articles/{id}/session',summary:'Create Article Session',
+   desc:'Creates a tracking session for an article interaction. Pass the returned session ID in subsequent article fetch calls.',
+   params:[{name:'id',in:'path',req:true,type:'string'},{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
+   responses:[{code:201,cls:'rc-ok',desc:'Session created.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSession',fields:[{key:'result',type:'object',nested:[{key:'id',type:'string',req:true,desc:'Session ID'}]}]}
+  }
+ ]},
+{id:'picture-guides',name:'Picture Guides',icon:'&#128444;',
+ desc:'Access visual step-by-step guides that combine images and instructional text to walk users through processes.',
+ endpoints:[
+  {id:'get-pgs',method:'GET',path:'/api/v1/picture-guides',summary:'Fetch Picture Guides',
+   desc:'Returns a paginated list of picture guides. Filter by category and control sort order.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
+    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Picture guides fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetPictureGuides',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'get-pg-by-id',method:'GET',path:'/api/v1/picture-guides/{id}',summary:'Fetch Picture Guide by ID',
+   desc:'Retrieve the full content of a picture guide by ID including step-by-step visual content with media. Supports session tracking.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id'},
+    {name:'sessionId',in:'query',req:false,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'session',in:'query',req:false,type:'boolean',ex:'false'},
+    {name:'status',in:'query',req:false,type:'number',ex:'1',enum:['0','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Picture guide fetched.'},{code:400,cls:'rc-err',desc:'Bad Request.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
+   schema:{name:'ResGetPictureGuide',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Full picture guide with steps and media'}]}
+  },
+  {id:'create-pg-session',method:'POST',path:'/api/v1/picture-guides/{id}/session',summary:'Create Picture Guide Session',
+   desc:'Creates a tracking session for a picture guide interaction.',
+   params:[{name:'id',in:'path',req:true,type:'string'},{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
+   responses:[{code:201,cls:'rc-ok',desc:'Session created.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSession',fields:[{key:'result',type:'object',nested:[{key:'id',type:'string',req:true,desc:'Session ID'}]}]}
+  }
+ ]},
+{id:'languages',name:'Languages',icon:'&#127758;',
+ desc:'Retrieve all languages configured for your tenant. Use language codes in the language header when fetching localized content.',
+ endpoints:[
+  {id:'get-languages',method:'GET',path:'/api/v1/languages',summary:'Fetch Languages',
+   desc:'Returns all languages enabled for the specified tenant. Use the returned language IDs in the <code>language</code> header when fetching content.',
+   params:[{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
+   responses:[{code:200,cls:'rc-ok',desc:'Languages fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetLanguage',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'array',req:true,nested:[
+     {key:'id',type:'string',req:true,desc:'Language ID - use this in the language header'},
+     {key:'name',type:'string',req:true,ex:'"English"'}
+    ]}
+   ]}
+  }
+ ]},
+{id:'search',name:'Search',icon:'&#128269;',
+ desc:'Full-text search, keyword search, AI-powered answers, and recommended content spanning all content types - articles, FAQs, documents, decision trees, and more.',
+ endpoints:[
+  {id:'ask-ai',method:'GET',path:'/api/v1/search/ask-ai',summary:'Ask AI',
+   desc:'Get an AI-generated answer to a natural language question. The AI synthesizes information from your knowledge base to provide a direct answer. Supports streaming via Server-Sent Events.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:true,type:'string',ex:'en',desc:'Language for the AI response'},
+    {name:'q',in:'query',req:true,type:'string',ex:'How to change password on Knowmax App?',desc:'Natural language question'},
+    {name:'regenerate',in:'query',req:false,type:'boolean',ex:'false',desc:'Set to true to regenerate a fresh AI answer'},
+    {name:'streaming',in:'query',req:false,type:'boolean',ex:'true',desc:'Enable SSE streaming response'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'AI answer generated successfully.'},{code:401,cls:'rc-err',desc:'Unauthorized. Ask AI may not be enabled for this tenant.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:422,cls:'rc-err',desc:'Unprocessable Entity.'}],
+   schema:{name:'ResGetAskAIAnswer',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'answer',type:'string',req:true,desc:'AI-generated answer text'},
+     {key:'sources',type:'array',req:false,desc:'Source content items used for the answer'}
+    ]}
+   ]}
+  },
+  {id:'ask-ai-sources',method:'GET',path:'/api/v1/search/ask-ai/sources',summary:'Get Ask AI Sources',
+   desc:'Retrieve the knowledge base items that were used as sources to generate an Ask AI answer. Use this to show attribution or "read more" references.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:true,type:'string',ex:'en'},
+    {name:'q',in:'query',req:true,type:'string',ex:'How to change password on Knowmax App?'},
+    {name:'department',in:'header',req:false,type:'string',desc:'Filter sources by department'},
+    {name:'include_fields',in:'query',req:false,type:'string',ex:'url,text',desc:'Comma-separated fields to include in results'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Sources fetched successfully.'},{code:401,cls:'rc-err',desc:'Unauthorized.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:422,cls:'rc-err',desc:'Unprocessable Entity.'}],
+   schema:{name:'ResGetAskAISources',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'array',req:true,desc:'Source content items with URL, title, and text snippets'}]}
+  },
+  {id:'search-content',method:'GET',path:'/api/v1/search',summary:'Search Content',
+   desc:'Full-text search across all content types. Filter by type, category, keywords, and date range. Returns ranked paginated results with optional category breadcrumbs.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'q',in:'query',req:true,type:'string',ex:'Discount on Food App'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'size',in:'query',req:false,type:'number',ex:'10'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'contentType',in:'query',req:false,type:'array',ex:'["article","decision-trees"]',enum:['article','decision-trees','pg','faq','document','confluence','sharepoint','google-drive','custom_links','sop']},
+    {name:'categories',in:'query',req:false,type:'array',ex:'["Discount"]'},
+    {name:'selectedKeywords',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'days',in:'query',req:false,type:'number',ex:'7',desc:'Limit to last N days. 0 = all time.'},
+    {name:'categoryBreadCrumbs',in:'query',req:false,type:'boolean',ex:'true',desc:'Include category breadcrumb path in results'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Search results fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true,desc:'Matching content items'},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'search-keywords',method:'GET',path:'/api/v1/search/keywords',summary:'Search by Keywords',
+   desc:'Search content using specific keywords. Pass a comma-separated list of keywords to find all content tagged with any of them.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'k',in:'query',req:true,type:'string',ex:'discount,food,app',desc:'Comma-separated keyword list'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'size',in:'query',req:false,type:'number',ex:'10'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'contentType',in:'query',req:false,type:'array',ex:'["article","faq"]',enum:['article','decision-trees','pg','faq','document','confluence','sharepoint','google-drive','custom_links','sop']},
+    {name:'categories',in:'query',req:false,type:'array',ex:'["Discount"]'},
+    {name:'days',in:'query',req:false,type:'number',ex:'0'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Keyword search results fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'recommended',method:'GET',path:'/api/v1/search/active/recommended',summary:'Recommended Search',
+   desc:'AI-curated recommended results for a search query. Applies active recommendation logic to surface the most relevant content for the given query.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:true,type:'string',ex:'en'},
+    {name:'q',in:'query',req:true,type:'string',ex:'Discount on Food App'},
+    {name:'size',in:'query',req:false,type:'number',ex:'10'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'contentType',in:'query',req:false,type:'array',enum:['article','decision-trees','pg','faq','document','confluence','sharepoint','google-drive','custom_links','sop']},
+    {name:'selectedCats',in:'query',req:false,type:'array',ex:'["Discount"]'},
+    {name:'selectedKeywords',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'days',in:'query',req:false,type:'number',ex:'0'},
+    {name:'categoryBreadCrumbs',in:'query',req:false,type:'boolean',ex:'true'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Recommended results fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+  }
+ ]},
+{id:'flows',name:'Flows (Decision Trees)',icon:'&#128336;',
+ desc:'Interact with decision tree flows - guided branching conversations that walk users through troubleshooting or process steps. Supports full session management, navigation, and variable persistence.',
+ endpoints:[
+  {id:'get-dts',method:'GET',path:'/api/v1/decisiontrees',summary:'Fetch Decision Trees',
+   desc:'Returns a paginated list of published decision trees. Filter by category.',
+   params:[
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'language',in:'header',req:false,type:'string',ex:'en'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
+    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Decision trees fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetActiveDecisionTrees',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true,desc:'Decision tree objects'},{key:'totalCount',type:'number',req:true}]}]}
+  },
+  {id:'get-dt-info',method:'GET',path:'/api/v1/decisiontrees/info/{id}',summary:'Fetch Decision Tree Info',
+   desc:'Get metadata for a decision tree (title, description, category) without loading the full node structure.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Decision tree info fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetActiveDecisionTreeInfo',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Metadata: id, title, category, description'}]}
+  },
+  {id:'get-dt-by-id',method:'GET',path:'/api/v1/decisiontrees/{id}',summary:'Fetch Decision Tree by ID',
+   desc:'Retrieve the full structure of a decision tree including all nodes and edges.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',desc:'ID of the decision tree'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Decision tree fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetDT',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Full decision tree with all nodes and edges'}]}
+  },
+  {id:'get-root-step',method:'GET',path:'/api/v1/decisiontrees/root/{id}',summary:'Fetch Root Step',
+   desc:'Returns the first (root) node of a decision tree. This is the entry point for starting a flow session.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'sessionId',in:'query',req:false,type:'string',ex:'clrj9lbb2000224pot074zf06'},
+    {name:'session',in:'query',req:false,type:'boolean',ex:'false'},
+    {name:'context',in:'query',req:false,type:'string',ex:'user_id'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Root step fetched.'},{code:307,cls:'rc-redir',desc:'Temporary Redirect.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetActiveDecisionTree',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,nested:[{key:'id',type:'string',req:true},{key:'question',type:'object',req:true,desc:'Node content (text, media, links)'},{key:'responses',type:'array',req:true,desc:'Available response options'}]}]}
+  },
+  {id:'get-next-step',method:'GET',path:'/api/v1/decisiontrees/{id}/node/{node_id}',summary:'Fetch Next Step',
+   desc:'Navigate to a specific node in a decision tree by node ID.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'node_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'session_id',in:'query',req:false,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'response_id',in:'query',req:false,type:'string',ex:'UR-27364822'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Next step fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Node with question content and response options'}]}
+  },
+  {id:'get-prev-step',method:'GET',path:'/api/v1/decisiontrees/{id}/session/{session_id}/node/previous/{node_id}',summary:'Fetch Previous Step',
+   desc:'Navigate backwards to the previous step in an active session. Enables back navigation in guided flows.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'session_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'node_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Previous step fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'The previous node in the session history'}]}
+  },
+  {id:'submit-response-get',method:'GET',path:'/api/v1/decisiontrees/{id}/session/{session_id}/submit-response/{response_id}',summary:'Submit Response and Advance',
+   desc:'Submit a user response and receive the next step. The response ID corresponds to one of the option IDs returned in the node\'s responses array.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string'},
+    {name:'session_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'response_id',in:'path',req:true,type:'string',ex:'UR-27364822'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Next step fetched after response.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Next node after the submitted response'}]}
+  },
+  {id:'save-variable',method:'POST',path:'/api/v1/decisiontrees/{id}/session/{session_id}/variable',summary:'Save Session Variable',
+   desc:'Persist a custom key-value variable within an active flow session. Variables can be used by decision tree logic to personalize the flow.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string'},
+    {name:'session_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   body:{schema:'ReqSaveVariable',fields:[{key:'key',type:'string',req:true,desc:'Variable name'},{key:'value',type:'string',req:true,desc:'Variable value'}]},
+   responses:[{code:200,cls:'rc-ok',desc:'Session variable saved.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetSaveVariable',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Confirmation with updated session variables'}]}
+  },
+  {id:'submit-response-post',method:'POST',path:'/api/v1/decisiontrees/{id}/session/{session_id}/node/{node_id}',summary:'Submit Response (POST)',
+   desc:'Submit a user response via POST body and receive the next step. Use when passing complex response data alongside session variables.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'session_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'node_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
+   ],
+   body:{schema:'ReqSubmitNode',fields:[{key:'responseId',type:'string',req:true,desc:'ID of the selected response option'},{key:'variables',type:'object',req:false,desc:'Key-value session variables to update'}]},
+   responses:[{code:200,cls:'rc-ok',desc:'Response submitted, next step returned.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Next step node with question and options'}]}
+  }
+ ]},
+{id:'feedback',name:'Feedback',icon:'&#11088;',
+ desc:'Capture user feedback on knowledge base content to track helpfulness and improve content quality.',
+ endpoints:[
+  {id:'save-feedback',method:'POST',path:'/api/v1/feedback',summary:'Save Feedback',
+   desc:'Submit user feedback for a content item. Supports ratings, free-text comments, and contextual identifiers.',
+   params:[{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
+   body:{schema:'ReqCreateIFeedback',fields:[
+    {key:'contentId',type:'string',req:true,desc:'ID of the content item being rated'},
+    {key:'contentType',type:'string',req:true,desc:'article | faq | document | pg | decision-trees | sop'},
+    {key:'rating',type:'number',req:true,desc:'1 = helpful, 0 = not helpful'},
+    {key:'comment',type:'string',req:false,desc:'Optional free-text comment'},
+    {key:'context',type:'string',req:false,desc:'Contextual identifier (e.g. agent or user ID)'}
+   ]},
+   responses:[{code:201,cls:'rc-ok',desc:'Feedback saved successfully.'},{code:400,cls:'rc-err',desc:'Bad Request. Missing required fields.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found. Content does not exist.'}],
+   schema:{name:'FeedbackResponse',fields:[{key:'statusCode',type:'number',req:true,ex:'201',desc:'201 confirms feedback was saved'}]}
+  }
+ ]}
+];
+
+// ── RENDER ─────────────────────────────────────────────────
+function hPath(p){return p.replace(/\{([^}]+)\}/g,'<span class="pp">{$1}</span>')}
+function mc(m){return m.toLowerCase()==='get'?'get':'post'}
+
+function rParams(params){
+  if(!params||!params.length)return '';
+  const rows=params.map(p=>`<tr>
+    <td>
+      <span class="pname">${p.name}</span><span class="${p.req?'rtag':'otag'}">${p.req?'required':'optional'}</span>
+      ${p.desc?`<div class="idesc">${p.desc}</div>`:''}
+      ${p.enum?`<div class="ienums">${p.enum.map(e=>`<span class="iev">${e}</span>`).join('')}</div>`:''}
+      ${p.ex?`<div class="iex">Example: ${p.ex}</div>`:''}
+    </td>
+    <td><span class="iloc">${p.in}</span></td>
+    <td><span class="itype">${p.type}</span></td>
+  </tr>`).join('');
+  return `<div class="ep-sec"><div class="ep-sec-lbl">Parameters</div>
+    <div style="border:1px solid var(--border);border-radius:var(--r2);overflow:hidden">
+      <table class="pt"><thead><tr><th>Name</th><th>In</th><th>Type</th></tr></thead><tbody>${rows}</tbody></table>
+    </div></div>`;
+}
+
+function rBody(body){
+  if(!body)return '';
+  const rows=body.fields.map(f=>`<tr>
+    <td><span class="pname">${f.key}</span><span class="${f.req?'rtag':'otag'}">${f.req?'required':'optional'}</span>
+    ${f.desc?`<div class="idesc">${f.desc}</div>`:''}</td>
+    <td><span class="itype">${f.type||'string'}</span></td>
+  </tr>`).join('');
+  return `<div class="ep-sec"><div class="ep-sec-lbl">Request Body <span class="iloc">application/json</span></div>
+    <div style="border:1px solid var(--border);border-radius:var(--r2);overflow:hidden">
+      <table class="pt"><thead><tr><th>Field</th><th>Type</th></tr></thead><tbody>${rows}</tbody></table>
+    </div></div>`;
+}
+
+function rResponses(responses){
+  const items=responses.map(r=>`<div class="rc ${r.cls||'rc-ok'}"><span class="rc-code">${r.code}</span><div class="rc-desc">${r.desc}</div></div>`).join('');
+  return `<div class="ep-sec"><div class="ep-sec-lbl">Responses</div><div class="rc-list">${items}</div></div>`;
+}
+
+function rSchemaFields(fields,d){
+  if(!fields)return '';
+  return fields.map(f=>`
+    <div class="sf" style="padding-left:${d*16}px">
+      <span class="sf-req">${f.req?'*':' '}</span>
+      <span class="sf-key">"${f.key}"</span>
+      <span class="sf-type">&nbsp;${f.type}</span>
+      ${f.ex?`<span class="sf-ex">&nbsp;// ${f.ex}</span>`:''}
+      ${f.desc?`<span class="sf-desc">&nbsp;- ${f.desc}</span>`:''}
+    </div>${f.nested?rSchemaFields(f.nested,d+1):''}`).join('');
+}
+
+function exJSON(fields,ind){
+  if(!fields||!fields.length)return '{}';
+  ind=ind||0; const p='  '.repeat(ind);
+  const lines=fields.map(f=>{
+    let v;
+    if(f.nested){
+      const arr=f.type&&(f.type.startsWith('array')||f.type.includes('[]'));
+      v=arr?'[\n'+p+'    '+exJSON(f.nested,ind+2).replace(/\n/g,'').replace(/^\{/,'').replace(/\}$/,'').trim()+'\n'+p+'  ]':exJSON(f.nested,ind+1);
+    }else if(f.ex){
+      const raw=f.ex.replace(/^"|"$/g,'');
+      v=(/^\d/.test(raw)||['true','false','null'].includes(raw)||/^[\[{]/.test(raw))?f.ex:`"${raw}"`;
+    }else{
+      v=f.type==='number'?'0':f.type==='boolean'?'false':f.type&&(f.type.startsWith('array')||f.type.includes('[]'))?'[]':f.type==='object'?'{}':'"string"';
+    }
+    return p+'  '+'<span class="tok-k">"'+f.key+'"</span>: <span class="tok-v">'+v+'</span>';
+  });
+  return '{\n'+lines.join(',\n')+'\n'+p+'}';
+}
+
+function rSchema(schema){
+  if(!schema)return '';
+  const sid='sc-'+Math.random().toString(36).slice(2);
+  return `<div class="ep-sec"><div class="ep-sec-lbl">Response Schema <span class="iloc">${schema.name}</span></div>
+    <div class="schema-box">
+      <div class="stabs">
+        <button class="stab on" onclick="switchTab(this,'${sid}-fields')">Schema Fields</button>
+        <button class="stab" onclick="switchTab(this,'${sid}-example')">Example Response</button>
+      </div>
+      <div class="stab-panel on" id="${sid}-fields">
+        <div style="background:#0d1e28;border-radius:6px;padding:12px">
+          <div style="color:#6a737d;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:6px">* = required field</div>
+          ${rSchemaFields(schema.fields,0)}
+        </div>
+      </div>
+      <div class="stab-panel" id="${sid}-example">
+        <div class="code" style="margin:0;box-shadow:none">
+          <div class="code-bar"><div class="code-dots"><div class="code-dot" style="background:#f05252"></div><div class="code-dot" style="background:#f59e0b"></div><div class="code-dot" style="background:#00c48c"></div></div><span class="code-lang">JSON</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <div class="code-pre">${exJSON(schema.fields,0)}</div>
+        </div>
+      </div>
+    </div></div>`;
+}
+
+function rTry(ep){
+  const pp=(ep.params||[]).filter(p=>p.in==='path');
+  const hp=(ep.params||[]).filter(p=>p.in==='header');
+  const qp=(ep.params||[]).filter(p=>p.in==='query');
+  function fld(p){
+    const id=`${ep.id}__${p.name}`;
+    if(p.enum){
+      const opts=p.enum.map(e=>`<option value="${e}">${e}</option>`).join('');
+      return `<div class="fg"><label class="fl" for="${id}">${p.name} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
+        <select class="fsel" id="${id}" data-param="${p.name}" data-in="${p.in}"><option value="">-- select --</option>${opts}</select></div>`;
+    }
+    return `<div class="fg"><label class="fl" for="${id}">${p.name} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
+      <input class="fi" id="${id}" data-param="${p.name}" data-in="${p.in}" placeholder="${p.ex||''}" value="${p.ex||''}"/>
+      ${p.desc?`<div class="fhint">${p.desc}</div>`:''}</div>`;
+  }
+  let s='';
+  if(pp.length) s+=`<div class="tp-sec-lbl">Path Parameters</div><div class="tp-row">${pp.map(fld).join('')}</div>`;
+  if(hp.length) s+=`<div class="tp-sec-lbl">Header Parameters</div><div class="tp-row">${hp.map(fld).join('')}</div>`;
+  if(qp.length) s+=`<div class="tp-sec-lbl">Query Parameters</div><div class="tp-row">${qp.map(fld).join('')}</div>`;
+  if(ep.body) s+=`<div class="tp-sec-lbl">Request Body</div><div class="tp-row">${ep.body.fields.map(fld).join('')}</div>`;
+  return `<div class="ep-sec">
+    <div class="try-bar">
+      <div class="ep-sec-lbl" style="margin:0">Try It Out</div>
+      <button class="try-btn" id="trybtn-${ep.id}" onclick="toggleTry('${ep.id}')">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Try it out
+      </button>
+    </div>
+    <div class="try-panel" id="trypanel-${ep.id}">
+      <div class="key-notice warn" id="keynotice-${ep.id}" style="display:none"></div>
+      <div class="try-hint">Fill in the parameters below and click Execute to make a live API call. Use the <strong>Authorize</strong> button in the top bar to set your API key.</div>
+      ${s}
+      <div class="tp-sec-lbl" style="margin-top:14px">Generated cURL</div>
+      <div class="code" id="curlbox-${ep.id}">
+        <div class="code-bar"><div class="code-dots"><div class="code-dot" style="background:#f05252"></div><div class="code-dot" style="background:#f59e0b"></div><div class="code-dot" style="background:#00c48c"></div></div><span class="code-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <div class="code-pre" id="curlpre-${ep.id}"></div>
+      </div>
+      <div class="tp-actions">
+        <button class="exec-btn" id="execbtn-${ep.id}" onclick="execReq('${ep.id}')">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Execute
+        </button>
+        <button class="clr-btn" onclick="clrResp('${ep.id}')">Clear</button>
+      </div>
+      <div class="resp-wrap" id="respwrap-${ep.id}">
+        <div class="resp-hdr"><span class="resp-sc" id="respsc-${ep.id}"></span><span class="resp-ms" id="respms-${ep.id}"></span></div>
+        <div class="resp-body" id="respbody-${ep.id}"></div>
+      </div>
+    </div></div>`;
+}
+
+function rCard(ep){
+  const m=mc(ep.method);
+  return `<div class="ep-card ${m}-card sec-anchor" id="ep-${ep.id}">
+    <div class="ep-hdr" onclick="toggleCard('${ep.id}')">
+      <span class="mpill mpill-${m}">${ep.method}</span>
+      <span class="ep-path-txt">${hPath(ep.path)}</span>
+      <span class="ep-summ">${ep.summary}</span>
+      <svg class="ep-chev" id="chev-${ep.id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="ep-body" id="body-${ep.id}">
+      <div class="ep-sec"><div class="ep-sec-lbl">Description</div><p class="ep-desc-txt">${ep.desc}</p></div>
+      ${rParams(ep.params)}${rBody(ep.body)}${rResponses(ep.responses)}${rSchema(ep.schema)}${rTry(ep)}
+    </div></div>`;
+}
+
+function buildAll(){
+  // sidebar
+  document.getElementById('sbGroups').innerHTML=GROUPS.map((g,i)=>`
+    <div>
+      <div class="sb-grp-hdr" onclick="togSbGrp(${i})">
+        <div class="sb-grp-left"><span class="sb-grp-icon">${g.icon}</span><span class="sb-grp-name">${g.name}</span><span class="sb-grp-n">${g.endpoints.length}</span></div>
+        <svg class="sb-chev" id="sbch-${i}" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><polygon points="5,3 12,8 5,13"/></svg>
+      </div>
+      <div class="sb-eps" id="sbeps-${i}">${g.endpoints.map(ep=>`
+        <a class="sb-ep" id="sbep-${ep.id}" href="#ep-${ep.id}" onclick="actSb('${ep.id}')">
+          <span class="mbadge ${mc(ep.method)}">${ep.method}</span>
+          <span class="sb-ep-txt">${ep.summary}</span>
+        </a>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // content
+  document.getElementById('epGroups').innerHTML=GROUPS.map((g,i)=>`
+    <div class="ep-group sec-anchor" id="grp-${g.id}">
+      <div class="sec-hdr">
+        <div class="sec-icon-wrap">${g.icon}</div>
+        <h2 class="sec-title">${g.name}</h2>
+        <span class="sec-badge">${g.endpoints.length} endpoint${g.endpoints.length!==1?'s':''}</span>
+      </div>
+      <p class="sec-desc">${g.desc}</p>
+      ${g.endpoints.map(rCard).join('')}
+    </div>${i<GROUPS.length-1?'<div class="divider"></div>':''}`).join('');
+
+  // open first sidebar group
+  const e0=document.getElementById('sbeps-0'),c0=document.getElementById('sbch-0');
+  if(e0){e0.classList.add('open');c0.classList.add('open')}
+
+  setTimeout(initSpy,600);
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function toggleCard(id){
+  const body=document.getElementById('body-'+id);
+  const chev=document.getElementById('chev-'+id);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  chev.classList.toggle('open',!open);
+  if(!open) setTimeout(()=>updCurl(id),50);
+}
+
+function togSbGrp(i){
+  const e=document.getElementById('sbeps-'+i),c=document.getElementById('sbch-'+i);
+  e.classList.toggle('open');c.classList.toggle('open');
+}
+
+function actSb(id){
+  document.querySelectorAll('.sb-ep').forEach(el=>el.classList.remove('on'));
+  const el=document.getElementById('sbep-'+id);
+  if(el)el.classList.add('on');
+}
+
+function toggleTry(id){
+  const panel=document.getElementById('trypanel-'+id);
+  const btn=document.getElementById('trybtn-'+id);
+  const open=panel.classList.contains('open');
+  panel.classList.toggle('open',!open);
+  if(!open){
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Close';
+    btn.classList.add('stop');
+    updCurl(id);
+    updKeyNotice(id);
+  }else{
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Try it out';
+    btn.classList.remove('stop');
+  }
+}
+
+function getEp(id){for(const g of GROUPS){const e=g.endpoints.find(x=>x.id===id);if(e)return e;}return null}
+
+function getInputs(id){
+  const m={};
+  document.querySelectorAll(`[id^="${id}__"]`).forEach(el=>{if(el.dataset.param)m[el.dataset.param]=el.value});
+  return m;
+}
+
+function buildCurl(ep,inputs){
+  const base=REGIONS[curRegion];
+  let path=ep.path; const qp=[];
+  const hMap={};
+  (ep.params||[]).forEach(p=>{
+    const v=inputs[p.name]||'';
+    if(!v)return;
+    if(p.in==='path') path=path.replace('{'+p.name+'}',v);
+    else if(p.in==='query') qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(v));
+    else if(p.in==='header') hMap[p.name]=v;
+  });
+  const url=base+path+(qp.length?'?'+qp.join('&'):'');
+  const hLines=Object.entries(hMap).map(([k,v])=>`  -H "${k}: ${v}"`).join(' \\\n');
+  const bodyLine=ep.body?` \\\n  -d '${JSON.stringify(Object.fromEntries((ep.body.fields||[]).map(f=>[f.key,inputs[f.key]||''])))}'`:'';
+  const keyStr = globalApiKey ? globalApiKey : 'YOUR_API_KEY';
+  return `curl -X ${ep.method} "${url}" \\\n  -H "x-api-key: ${keyStr}" \\\n${hLines||'  -H "Content-Type: application/json"'}${bodyLine}`;
+}
+
+function updCurl(id){
+  const ep=getEp(id); const pre=document.getElementById('curlpre-'+id);
+  if(!ep||!pre)return;
+  pre.textContent=buildCurl(ep,getInputs(id));
+  document.querySelectorAll(`[id^="${id}__"]`).forEach(el=>{
+    el.oninput=el.onchange=()=>{pre.textContent=buildCurl(ep,getInputs(id))};
+  });
+}
+
+async function execReq(id){
+  const ep=getEp(id); if(!ep)return;
+  const inputs=getInputs(id);
+  const btn=document.getElementById('execbtn-'+id);
+  const wrap=document.getElementById('respwrap-'+id);
+  const sc=document.getElementById('respsc-'+id);
+  const ms=document.getElementById('respms-'+id);
+  const body=document.getElementById('respbody-'+id);
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Executing...';
+
+  const base=REGIONS[curRegion]; let path=ep.path; const qp=[];
+  const hdrs={'Content-Type':'application/json'};
+  if(globalApiKey) hdrs['x-api-key']=globalApiKey;
+  (ep.params||[]).forEach(p=>{
+    const v=inputs[p.name]||'';if(!v)return;
+    if(p.in==='path') path=path.replace('{'+p.name+'}',v);
+    else if(p.in==='query') qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(v));
+    else if(p.in==='header') hdrs[p.name]=v;
+  });
+  const url=base+path+(qp.length?'?'+qp.join('&'):'');
+  const opts={method:ep.method,headers:hdrs};
+  if(ep.body&&ep.method==='POST'){
+    const bd={};(ep.body.fields||[]).forEach(f=>{if(inputs[f.key])bd[f.key]=inputs[f.key]});
+    opts.body=JSON.stringify(bd);
+  }
+  const t0=Date.now();
+  try{
+    const res=await fetch(url,opts);
+    const elapsed=Date.now()-t0;
+    const txt=await res.text();
+    let pretty;try{pretty=JSON.stringify(JSON.parse(txt),null,2)}catch{pretty=txt}
+    sc.textContent=res.status+' '+res.statusText;
+    sc.className='resp-sc '+(res.ok?'sc-ok':'sc-err');
+    ms.textContent=elapsed+'ms';
+    body.textContent=pretty;
+    wrap.classList.add('show');
+  }catch(err){
+    sc.textContent='Network Error'; sc.className='resp-sc sc-err';
+    ms.textContent='';
+    body.textContent=err.message+'\n\nIf you see a CORS error, the browser blocked the request due to cross-origin policy. Use cURL or Postman to test outside the browser.';
+    wrap.classList.add('show');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Execute';
+  }
+}
+
+function clrResp(id){document.getElementById('respwrap-'+id).classList.remove('show')}
+
+function switchTab(btn,panelId){
+  const box=btn.closest('.schema-box');
+  box.querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));
+  box.querySelectorAll('.stab-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(panelId).classList.add('on');
+}
+
+function copyCode(btn){
+  const block=btn.closest('.code,.code-block');
+  const pre=block.querySelector('.code-pre,[class*=code-pre]');
+  if(!pre)return;
+  navigator.clipboard.writeText(pre.innerText||pre.textContent).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok')},2000);
+  });
+}
+
+function initSpy(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id=e.target.id;
+        if(id.startsWith('ep-')){
+          document.querySelectorAll('.sb-ep').forEach(el=>el.classList.remove('on'));
+          const el=document.getElementById('sbep-'+id.slice(3));
+          if(el)el.classList.add('on');
+        }
+      }
+    });
+  },{rootMargin:'-15% 0px -75% 0px',threshold:0});
+  document.querySelectorAll('.ep-card').forEach(c=>obs.observe(c));
+}
+
+document.addEventListener('DOMContentLoaded',buildAll);
+
+// ── GLOBAL AUTH ──────────────────────────────────────────
+let globalApiKey = '';
+let keyVisible = false;
+
+function openAuthModal(){
+  const modal = document.getElementById('authModal');
+  const input = document.getElementById('apiKeyInput');
+  const status = document.getElementById('authStatusBanner');
+  const revoke = document.getElementById('revokeBtn');
+  keyVisible = false;
+  input.type = 'password';
+  document.getElementById('eyeIcon').innerHTML = eyeOpen;
+  input.value = globalApiKey || '';
+  if(globalApiKey){
+    status.style.display = 'flex';
+    revoke.style.display = 'inline-flex';
+  } else {
+    status.style.display = 'none';
+    revoke.style.display = 'none';
+  }
+  modal.classList.add('open');
+  setTimeout(()=>input.focus(),120);
+}
+
+function closeAuthModal(){ document.getElementById('authModal').classList.remove('open'); }
+
+function handleModalBg(e){ if(e.target===document.getElementById('authModal')) closeAuthModal(); }
+
+function toggleKeyVis(){
+  const input = document.getElementById('apiKeyInput');
+  keyVisible = !keyVisible;
+  input.type = keyVisible ? 'text' : 'password';
+  document.getElementById('eyeIcon').innerHTML = keyVisible ? eyeClosed : eyeOpen;
+}
+
+function saveApiKey(){
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if(!val){ closeAuthModal(); return; }
+  globalApiKey = val;
+  updAuthBtn();
+  closeAuthModal();
+  document.querySelectorAll('.try-panel.open').forEach(p=>{
+    const id = p.id.replace('trypanel-','');
+    updCurl(id); updKeyNotice(id);
+  });
+}
+
+function revokeKey(){
+  globalApiKey = '';
+  document.getElementById('apiKeyInput').value = '';
+  document.getElementById('authStatusBanner').style.display = 'none';
+  document.getElementById('revokeBtn').style.display = 'none';
+  updAuthBtn();
+  document.querySelectorAll('.try-panel.open').forEach(p=>{
+    const id = p.id.replace('trypanel-','');
+    updCurl(id); updKeyNotice(id);
+  });
+}
+
+function updAuthBtn(){
+  const btn = document.getElementById('authBtn');
+  if(globalApiKey){
+    btn.classList.add('authed');
+    btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Authorized`;
+  } else {
+    btn.classList.remove('authed');
+    btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Authorize`;
+  }
+}
+
+function updKeyNotice(id){
+  const el = document.getElementById('keynotice-'+id);
+  if(!el) return;
+  if(!globalApiKey){
+    el.className='key-notice warn';
+    el.innerHTML=`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>No API key set — click <strong style="margin:0 3px">Authorize</strong> in the top bar before executing.`;
+    el.style.display='flex';
+  } else {
+    el.className='key-notice ok';
+    el.innerHTML=`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>API key is set. Ready to execute.`;
+    el.style.display='flex';
+  }
+}
+
+const eyeOpen = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const eyeClosed = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+</script>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal" onclick="handleModalBg(event)">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="modal-title">API Authorization</div>
+    <div class="modal-sub">Enter your Knowmax API key to authenticate requests in the Try It Out panel. The key is stored in memory for this session only.</div>
+    <div class="modal-status-banner msb-ok" id="authStatusBanner" style="display:none">
+      API key is active — all Try It Out requests will include it automatically.
+    </div>
+    <div class="modal-field-label">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      x-api-key
+    </div>
+    <div class="modal-input-wrap">
+      <input class="modal-input" id="apiKeyInput" type="password" placeholder="Paste your API key here..." autocomplete="off" onkeydown="if(event.key==='Enter')saveApiKey()"/>
+      <button class="modal-eye" onclick="toggleKeyVis()" title="Show/hide key" id="eyeIcon">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="modal-hint">Obtain your API key from Knowmax Admin → Settings → Integrations. Keys are scoped per tenant and can be rotated at any time. This key is <strong>never logged or stored</strong> — it only lives in your browser's memory for this session.</div>
+    <div class="modal-footer">
+      <button class="modal-revoke" id="revokeBtn" onclick="revokeKey()" style="display:none">Revoke Key</button>
+      <button class="modal-cancel" onclick="closeAuthModal()">Cancel</button>
+      <button class="modal-save" onclick="saveApiKey()">Save &amp; Authorize</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
