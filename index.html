@@ -750,10 +750,17 @@ const GROUPS=[
    schema:{name:'ResGetFaq',fields:[
     {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
     {key:'result',type:'object',req:true,nested:[
-     {key:'id',type:'string',req:true},{key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
      {key:'uId',type:'string',req:true,ex:'"AR-126-0315"',desc:'Human-readable unique ID'},
-     {key:'language',type:'object',req:true,desc:'{id, name}'},{key:'category',type:'object',req:true,desc:'{id, name}'},
-     {key:'steps',type:'array',req:true,desc:'Q&A steps [{question, answer, sort}]'}
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 creation timestamp'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 publish timestamp'},
+     {key:'languageGroupId',type:'string',req:true,desc:'Groups translated variants of the same content'},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'steps',type:'array',req:true,desc:'Q&A steps — each item: {question:{text,media,urls}, answer:{text,media,urls}, sort}'},
+     {key:'k_ticketId',type:'string',req:true,desc:'Internal ticket reference ID'}
     ]}
    ]}
   },
@@ -788,10 +795,11 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
-    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
-    {name:'page',in:'query',req:false,type:'number',ex:'1'},
-    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
-    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+    {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10',desc:'Results per page'},
+    {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Documents fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetDocuments',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
@@ -806,7 +814,27 @@ const GROUPS=[
     {name:'session',in:'query',req:false,type:'boolean',ex:'false'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Document fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
-   schema:{name:'ResGetDocument',fields:[{key:'statusCode',type:'number',req:true},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,desc:'Full document with content, media, and URLs'}]}
+   schema:{name:'ResGetDocument',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"',desc:'Human-readable unique ID'},
+     {key:'authorId',type:'string',req:true,desc:'ID of the author'},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'languageGroupId',type:'string',req:true},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'media',type:'array',req:true,desc:'Attached media [{name, displayName, path, mimeType}]'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'attributes',type:'array',req:true,desc:'Custom metadata [{key, value}]'},
+     {key:'urls',type:'array',req:true,desc:'Reference URLs [{displayName, link}]'},
+     {key:'linkAnotherModule',type:'array',req:true,desc:'Cross-module links [{contentId, contentTitle, contentType, serviceCode}]'},
+     {key:'content',type:'string',req:true,desc:'HTML content body'},
+     {key:'k_ticketId',type:'string',req:true,desc:'Internal ticket reference ID'}
+    ]}
+   ]}
   },
   {id:'create-doc-session',method:'POST',path:'/api/v1/document/{id}/session',summary:'Create Document Session',
    desc:'Creates a tracking session for a document interaction.',
@@ -823,10 +851,11 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
-    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
-    {name:'page',in:'query',req:false,type:'number',ex:'1'},
-    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
-    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+    {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10',desc:'Results per page'},
+    {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Articles fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetArticles',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true,desc:'Article objects'},{key:'totalCount',type:'number',req:true}]}]}
@@ -844,16 +873,22 @@ const GROUPS=[
    schema:{name:'ResGetArticle',fields:[
     {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
     {key:'result',type:'object',req:true,nested:[
-     {key:'id',type:'string',req:true},{key:'title',type:'string',req:true},
-     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"'},
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"',desc:'Human-readable unique ID'},
+     {key:'authorId',type:'string',req:true,desc:'ID of the author who created this article'},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 creation timestamp'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 publish timestamp'},
+     {key:'languageGroupId',type:'string',req:true,desc:'Groups translated variants of the same content'},
      {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'media',type:'array',req:true,desc:'Top-level media attachments [{name, displayName, path, mimeType}]'},
      {key:'category',type:'object',req:true,desc:'{id, name}'},
-     {key:'content',type:'object',req:true,nested:[
-      {key:'text',type:'string',req:true,desc:'HTML content string'},
-      {key:'media',type:'array',req:true,desc:'Attached media files'},
-      {key:'linkAnotherModule',type:'array',req:true,desc:'Cross-module content links'},
-      {key:'urls',type:'array',req:true,desc:'Reference URLs'}
-     ]}
+     {key:'attributes',type:'array',req:true,desc:'Custom metadata attributes [{key, value}]'},
+     {key:'urls',type:'array',req:true,desc:'Reference URLs [{displayName, link}]'},
+     {key:'linkAnotherModule',type:'array',req:true,desc:'Cross-module links [{contentId, contentTitle, contentType, serviceCode}]'},
+     {key:'content',type:'string',req:true,desc:'HTML content body of the article'},
+     {key:'k_ticketId',type:'string',req:true,desc:'Internal ticket reference ID'}
     ]}
    ]}
   },
@@ -872,10 +907,11 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
-    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
-    {name:'page',in:'query',req:false,type:'number',ex:'1'},
-    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
-    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+    {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10',desc:'Results per page'},
+    {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Picture guides fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetPictureGuides',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
@@ -891,7 +927,23 @@ const GROUPS=[
     {name:'status',in:'query',req:false,type:'number',ex:'1',enum:['0','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Picture guide fetched.'},{code:400,cls:'rc-err',desc:'Bad Request.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found.'}],
-   schema:{name:'ResGetPictureGuide',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Full picture guide with steps and media'}]}
+   schema:{name:'ResGetPictureGuide',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"'},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'languageGroupId',type:'string',req:true},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'steps',type:'array',req:true,desc:'Visual steps [{text, tips[], imageUrl, sequence, warnings[], imageName}]'},
+     {key:'videoUrl',type:'string',req:true,desc:'Optional video URL for the guide'},
+     {key:'layout',type:'string',req:true,desc:'Image layout: Left | Right | Top | Bottom'}
+    ]}
+   ]}
   },
   {id:'create-pg-session',method:'POST',path:'/api/v1/picture-guides/{id}/session',summary:'Create Picture Guide Session',
    desc:'Creates a tracking session for a picture guide interaction.',
@@ -910,8 +962,14 @@ const GROUPS=[
    schema:{name:'ResGetLanguage',fields:[
     {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
     {key:'result',type:'array',req:true,nested:[
-     {key:'id',type:'string',req:true,desc:'Language ID - use this in the language header'},
-     {key:'name',type:'string',req:true,ex:'"English"'}
+     {key:'id',type:'string',req:true,desc:'Language ID — use this value in the language header'},
+     {key:'name',type:'string',req:true,ex:'"English"',desc:'Human-readable language name'},
+     {key:'code',type:'string',req:true,ex:'"1033"',desc:'Knowmax internal language code'},
+     {key:'bcp47Code',type:'string',req:true,ex:'"en-US"',desc:'BCP-47 language tag'},
+     {key:'status',type:'number',req:true,ex:'1',desc:'1 = active, 0 = inactive'},
+     {key:'IsLeftToRight',type:'boolean',req:true,ex:'true',desc:'Text direction — false for RTL languages (e.g. Arabic)'},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 creation timestamp'},
+     {key:'modifiedAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"',desc:'ISO 8601 last-modified timestamp'}
     ]}
    ]}
   }
@@ -1007,10 +1065,11 @@ const GROUPS=[
    params:[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
     {name:'language',in:'header',req:false,type:'string',desc:'Language ID from the Languages API (GET /api/v1/languages)'},
-    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics'},
-    {name:'page',in:'query',req:false,type:'number',ex:'1'},
-    {name:'limit',in:'query',req:false,type:'number',ex:'10'},
-    {name:'sort',in:'query',req:false,type:'number',enum:['-1','1']}
+    {name:'category',in:'header',req:false,type:'string',desc:'Filter by category ID via header'},
+    {name:'categoryName',in:'query',req:false,type:'string',ex:'Electronics',desc:'Filter by category name'},
+    {name:'page',in:'query',req:false,type:'number',ex:'1',desc:'Page number'},
+    {name:'limit',in:'query',req:false,type:'number',ex:'10',desc:'Results per page'},
+    {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Decision trees fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
    schema:{name:'ResGetActiveDecisionTrees',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true,desc:'Decision tree objects'},{key:'totalCount',type:'number',req:true}]}]}
