@@ -914,7 +914,7 @@ const GROUPS=[
     {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Picture guides fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetPictureGuides',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+   schema:{name:'ResGetPictureGuides',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
   },
   {id:'get-pg-by-id',method:'GET',path:'/api/v1/picture-guides/{id}',summary:'Fetch Picture Guide by ID',
    desc:'Retrieve the full content of a picture guide by ID including step-by-step visual content with media. Supports session tracking.',
@@ -1005,7 +1005,12 @@ const GROUPS=[
     {name:'include_fields',in:'query',req:false,type:'string',ex:'url,text',desc:'Comma-separated fields to include in results'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Sources fetched successfully.'},{code:401,cls:'rc-err',desc:'Unauthorized.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:422,cls:'rc-err',desc:'Unprocessable Entity.'}],
-   schema:{name:'ResGetAskAISources',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'array',req:true,desc:'Source content items with URL, title, and text snippets'}]}
+   schema:{name:'ResGetAskAISources',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'sources',type:'array',req:true,desc:'Source items [{text, content_type, title, url}]'}
+    ]}
+   ]}
   },
   {id:'search-content',method:'GET',path:'/api/v1/search',summary:'Search Content',
    desc:'Full-text search across all content types. Filter by type, category, keywords, and date range. Returns ranked paginated results with optional category breadcrumbs.',
@@ -1037,7 +1042,7 @@ const GROUPS=[
     {name:'days',in:'query',req:false,type:'number',ex:'0'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Keyword search results fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
   },
   {id:'recommended',method:'GET',path:'/api/v1/search/active/recommended',summary:'Recommended Search',
    desc:'AI-curated recommended results for a search query. Applies active recommendation logic to surface the most relevant content for the given query.',
@@ -1054,7 +1059,7 @@ const GROUPS=[
     {name:'categoryBreadCrumbs',in:'query',req:false,type:'boolean',ex:'true'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Recommended results fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
+   schema:{name:'ResGetSearchDocuments',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true},{key:'totalCount',type:'number',req:true}]}]}
   }
  ]},
 {id:'flows',name:'Flows (Decision Trees)',icon:'&#128336;',
@@ -1072,7 +1077,7 @@ const GROUPS=[
     {name:'sort',in:'query',req:false,type:'number',desc:'Sort direction: 1 = ascending, -1 = descending',enum:['-1','1']}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Decision trees fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetActiveDecisionTrees',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',nested:[{key:'data',type:'array',req:true,desc:'Decision tree objects'},{key:'totalCount',type:'number',req:true}]}]}
+   schema:{name:'ResGetActiveDecisionTrees',fields:[{key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},{key:'result',type:'object',req:true,nested:[{key:'data',type:'array',req:true,desc:'Decision tree objects [{id,title,category,categoryPath}]'},{key:'totalCount',type:'number',req:true}]}]}
   },
   {id:'get-dt-info',method:'GET',path:'/api/v1/decisiontrees/info/{id}',summary:'Fetch Decision Tree Info',
    desc:'Get metadata for a decision tree (title, description, category) without loading the full node structure.',
@@ -1081,7 +1086,22 @@ const GROUPS=[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Decision tree info fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetActiveDecisionTreeInfo',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Metadata: id, title, category, description'}]}
+   schema:{name:'ResGetActiveDecisionTreeInfo',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"'},
+     {key:'authorId',type:'string',req:true},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'attributes',type:'array',req:true,desc:'Custom attributes [{key,value}]'},
+     {key:'layout',type:'string',req:true,desc:'Response display layout',enum:['button','color','image']}
+    ]}
+   ]}
   },
   {id:'get-dt-by-id',method:'GET',path:'/api/v1/decisiontrees/{id}',summary:'Fetch Decision Tree by ID',
    desc:'Retrieve the full structure of a decision tree including all nodes and edges.',
@@ -1090,7 +1110,23 @@ const GROUPS=[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Decision tree fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetDT',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Full decision tree with all nodes and edges'}]}
+   schema:{name:'ResGetDT',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'title',type:'string',req:true,ex:'"Broadband Speed Issue"'},
+     {key:'layout',type:'string',req:true,desc:'Response display layout',enum:['button','color','image']},
+     {key:'linkedNodes',type:'object',req:true,nested:[
+      {key:'id',type:'string',req:true,ex:'"cls1rigo800051218cv613s5t"'},
+      {key:'name',type:'string',req:true,desc:'Root node question text'},
+      {key:'stepId',type:'number',req:true,ex:'1'},
+      {key:'isHide',type:'boolean',req:true,ex:'false'},
+      {key:'type',type:'string',req:true,enum:['CONTENT','TREE','RESOLUTION','FORM']},
+      {key:'responses',type:'array',req:true,desc:'Response options [{name,uId,linkToNode,isFinal,isDirectNode,hoverText}]'},
+      {key:'finalRemarks',type:'string',req:true},
+      {key:'children',type:'array',req:true,desc:'Child nodes — each contains the same node structure recursively'}
+     ]}
+    ]}
+   ]}
   },
   {id:'get-root-step',method:'GET',path:'/api/v1/decisiontrees/root/{id}',summary:'Fetch Root Step',
    desc:'Returns the first (root) node of a decision tree. This is the entry point for starting a flow session.',
@@ -1102,7 +1138,26 @@ const GROUPS=[
     {name:'context',in:'query',req:false,type:'string',ex:'user_id'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Root step fetched.'},{code:307,cls:'rc-redir',desc:'Temporary Redirect.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetActiveDecisionTree',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,nested:[{key:'id',type:'string',req:true},{key:'question',type:'object',req:true,desc:'Node content (text, media, links)'},{key:'responses',type:'array',req:true,desc:'Available response options'}]}]}
+   schema:{name:'ResGetActiveDecisionTree',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},
+     {key:'title',type:'string',req:true,ex:'"Order and shopping assistance"'},
+     {key:'uId',type:'string',req:true,ex:'"AR-126-0315"'},
+     {key:'authorId',type:'string',req:true},
+     {key:'createdAt',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'publishedDate',type:'string',req:true,ex:'"2024-01-10T08:56:28.399Z"'},
+     {key:'languageGroupId',type:'string',req:true},
+     {key:'language',type:'object',req:true,desc:'{id, name}'},
+     {key:'publishedBy',type:'object',req:true,desc:'{fullName}'},
+     {key:'media',type:'array',req:true,desc:'Attached media [{name,displayName,path,mimeType}]'},
+     {key:'category',type:'object',req:true,desc:'{id, name}'},
+     {key:'attributes',type:'array',req:true,desc:'Custom attributes [{key,value}]'},
+     {key:'nodes',type:'array',req:true,desc:'All decision tree nodes (see Node schema for full structure)'},
+     {key:'layout',type:'string',req:true,desc:'Response display layout',enum:['button','color','image']},
+     {key:'sessionId',type:'string',req:true,ex:'"clrj9lbb2000224pot074zf06"',desc:'Active session ID'}
+    ]}
+   ]}
   },
   {id:'get-next-step',method:'GET',path:'/api/v1/decisiontrees/{id}/node/{node_id}',summary:'Fetch Next Step',
    desc:'Navigate to a specific node in a decision tree by node ID.',
@@ -1114,7 +1169,50 @@ const GROUPS=[
     {name:'response_id',in:'query',req:false,type:'string',ex:'UR-27364822'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Next step fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Node with question content and response options'}]}
+   schema:{name:'ResGetNode',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},
+     {key:'name',type:'string',req:true,desc:'Node question / step title (HTML)'},
+     {key:'content',type:'string',req:true,desc:'Additional HTML body content'},
+     {key:'type',type:'string',req:true,desc:'Node type',enum:['CONTENT','TREE','RESOLUTION','FORM']},
+     {key:'stepId',type:'string',req:true,ex:'1'},
+     {key:'isHoverEnabled',type:'boolean',req:true,ex:'false'},
+     {key:'isConfirmationEnabled',type:'boolean',req:true,ex:'false'},
+     {key:'confirmationText',type:'string',req:true},
+     {key:'linkedNodeId',type:'string',req:true},
+     {key:'linkedDecisionTreeId',type:'string',req:true},
+     {key:'finalRemarks',type:'string',req:true},
+     {key:'responses',type:'array',req:true,desc:'Response options [{name,uId,linkToNode,isFinal,isDirectNode,hoverText,remarks}]'},
+     {key:'media',type:'array',req:true,desc:'Attached media [{name,displayName,path,mimeType}]'},
+     {key:'urls',type:'array',req:true,desc:'Reference URLs [{displayName,link}]'},
+     {key:'linkAnotherModule',type:'array',req:true,desc:'Cross-module links [{contentId,contentTitle,contentType,serviceCode}]'},
+     {key:'nodeAttributes',type:'array',req:true,desc:'Custom node attributes [{key,value,id}]'},
+     {key:'formFields',type:'array',req:true,desc:'FORM-type node fields [{type,label,placeholder,required,variable}]'},
+     {key:'decisionTree',type:'object',req:true,desc:'Parent decision tree reference object'}
+    ]}
+   ]}
+  },
+  {id:'get-node-by-nodeid',method:'GET',path:'/api/v1/decisiontrees/{id}/nodes/{node_id}',summary:'Fetch Node by Node ID',
+   desc:'Fetch a specific node by its node ID. Unlike the singular <code>/node/</code> endpoint, here the decision tree <code>id</code> is passed as a query parameter, not a path parameter.',
+   params:[
+    {name:'id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4',desc:'ID of the decision tree (path)'},
+    {name:'node_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4',desc:'ID of the node to fetch'},
+    {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'},
+    {name:'session_id',in:'query',req:false,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
+    {name:'response_id',in:'query',req:false,type:'string',ex:'UR-27364822'}
+   ],
+   responses:[{code:200,cls:'rc-ok',desc:'Node fetched successfully.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
+   schema:{name:'ResGetNode',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'name',type:'string',req:true,desc:'Node question / step title (HTML)'},
+     {key:'content',type:'string',req:true},{key:'type',type:'string',req:true,enum:['CONTENT','TREE','RESOLUTION','FORM']},
+     {key:'stepId',type:'string',req:true},{key:'responses',type:'array',req:true,desc:'Response options [{name,uId,linkToNode,isFinal}]'},
+     {key:'media',type:'array',req:true},{key:'urls',type:'array',req:true},{key:'linkAnotherModule',type:'array',req:true},
+     {key:'nodeAttributes',type:'array',req:true},{key:'formFields',type:'array',req:true},{key:'decisionTree',type:'object',req:true}
+    ]}
+   ]}
   },
   {id:'get-prev-step',method:'GET',path:'/api/v1/decisiontrees/{id}/session/{session_id}/node/previous/{node_id}',summary:'Fetch Previous Step',
    desc:'Navigate backwards to the previous step in an active session. Enables back navigation in guided flows.',
@@ -1125,7 +1223,17 @@ const GROUPS=[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Previous step fetched.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'The previous node in the session history'}]}
+   schema:{name:'ResGetNode',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'name',type:'string',req:true,desc:'Node question / step title (HTML)'},
+     {key:'content',type:'string',req:true},{key:'type',type:'string',req:true,enum:['CONTENT','TREE','RESOLUTION','FORM']},
+     {key:'stepId',type:'string',req:true},{key:'isHoverEnabled',type:'boolean',req:true},{key:'isConfirmationEnabled',type:'boolean',req:true},
+     {key:'responses',type:'array',req:true,desc:'Response options [{name,uId,linkToNode,isFinal}]'},
+     {key:'media',type:'array',req:true},{key:'urls',type:'array',req:true},{key:'linkAnotherModule',type:'array',req:true},
+     {key:'nodeAttributes',type:'array',req:true},{key:'formFields',type:'array',req:true},{key:'decisionTree',type:'object',req:true}
+    ]}
+   ]}
   },
   {id:'submit-response-get',method:'GET',path:'/api/v1/decisiontrees/{id}/session/{session_id}/submit-response/{response_id}',summary:'Submit Response and Advance',
    desc:'Submit a user response and receive the next step. The response ID corresponds to one of the option IDs returned in the node\'s responses array.',
@@ -1136,7 +1244,16 @@ const GROUPS=[
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
    responses:[{code:200,cls:'rc-ok',desc:'Next step fetched after response.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Next node after the submitted response'}]}
+   schema:{name:'ResGetNode',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'name',type:'string',req:true,desc:'Node question / step title (HTML)'},
+     {key:'content',type:'string',req:true},{key:'type',type:'string',req:true,enum:['CONTENT','TREE','RESOLUTION','FORM']},
+     {key:'stepId',type:'string',req:true},{key:'responses',type:'array',req:true,desc:'Response options [{name,uId,linkToNode,isFinal}]'},
+     {key:'media',type:'array',req:true},{key:'urls',type:'array',req:true},{key:'linkAnotherModule',type:'array',req:true},
+     {key:'nodeAttributes',type:'array',req:true},{key:'formFields',type:'array',req:true},{key:'decisionTree',type:'object',req:true}
+    ]}
+   ]}
   },
   {id:'save-variable',method:'POST',path:'/api/v1/decisiontrees/{id}/session/{session_id}/variable',summary:'Save Session Variable',
    desc:'Persist a custom key-value variable within an active flow session. Variables can be used by decision tree logic to personalize the flow.',
@@ -1145,9 +1262,19 @@ const GROUPS=[
     {name:'session_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
-   body:{schema:'ReqSaveVariable',fields:[{key:'key',type:'string',req:true,desc:'Variable name'},{key:'value',type:'string',req:true,desc:'Variable value'}]},
+   body:{schema:'ReqSaveVariable',fields:[
+    {key:'key',type:'string',req:true,desc:'Variable name / key'},
+    {key:'sessionId',type:'string',req:true,desc:'Active session ID'},
+    {key:'value',type:'string',req:true,desc:'Variable value'}
+   ]},
    responses:[{code:200,cls:'rc-ok',desc:'Session variable saved.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetSaveVariable',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'object',desc:'Confirmation with updated session variables'}]}
+   schema:{name:'ResGetSaveVariable',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'success',type:'boolean',req:true,ex:'true'},
+     {key:'message',type:'string',req:true,ex:'"Saved successfully."'}
+    ]}
+   ]}
   },
   {id:'submit-response-post',method:'POST',path:'/api/v1/decisiontrees/{id}/session/{session_id}/node/{node_id}',summary:'Submit Response (POST)',
    desc:'Submit a user response via POST body and receive the next step. Use when passing complex response data alongside session variables.',
@@ -1157,9 +1284,21 @@ const GROUPS=[
     {name:'node_id',in:'path',req:true,type:'string',ex:'cls1rkfi2000d1218rzolw1i4'},
     {name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}
    ],
-   body:{schema:'ReqSubmitNode',fields:[{key:'responseId',type:'string',req:true,desc:'ID of the selected response option'},{key:'variables',type:'object',req:false,desc:'Key-value session variables to update'}]},
+   body:{schema:'ReqSubmitNode',fields:[
+    {key:'responseUid',type:'string',req:true,desc:'UID of the selected response option (the uId field from the responses array)'},
+    {key:'formFieldSubmissions',type:'array',req:false,desc:'Form field answers for FORM-type nodes — array of {key, sessionId, value}'}
+   ]},
    responses:[{code:200,cls:'rc-ok',desc:'Response submitted, next step returned.'},{code:403,cls:'rc-err',desc:'Forbidden.'}],
-   schema:{name:'ResGetNode',fields:[{key:'statusCode',type:'number',req:true},{key:'result',type:'Node',req:true,desc:'Next step node with question and options'}]}
+   schema:{name:'ResGetNode',fields:[
+    {key:'statusCode',type:'number',req:true,ex:'200'},{key:'errors',type:'array',req:true},
+    {key:'result',type:'object',req:true,nested:[
+     {key:'id',type:'string',req:true},{key:'name',type:'string',req:true,desc:'Node question / step title (HTML)'},
+     {key:'content',type:'string',req:true},{key:'type',type:'string',req:true,enum:['CONTENT','TREE','RESOLUTION','FORM']},
+     {key:'stepId',type:'string',req:true},{key:'responses',type:'array',req:true,desc:'Next response options [{name,uId,linkToNode,isFinal}]'},
+     {key:'media',type:'array',req:true},{key:'urls',type:'array',req:true},{key:'linkAnotherModule',type:'array',req:true},
+     {key:'nodeAttributes',type:'array',req:true},{key:'formFields',type:'array',req:true},{key:'decisionTree',type:'object',req:true}
+    ]}
+   ]}
   }
  ]},
 {id:'feedback',name:'Feedback',icon:'&#11088;',
