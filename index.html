@@ -1169,11 +1169,11 @@ const GROUPS=[
    desc:'Submit user feedback for a content item. Supports ratings, free-text comments, and contextual identifiers.',
    params:[{name:'subdomain',in:'header',req:true,type:'string',ex:'kmdemo',desc:'Your tenant name'}],
    body:{schema:'ReqCreateIFeedback',fields:[
-    {key:'contentId',type:'string',req:true,desc:'ID of the content item being rated'},
-    {key:'contentType',type:'string',req:true,desc:'article | faq | document | pg | decision-trees | sop'},
-    {key:'rating',type:'number',req:true,desc:'1 = helpful, 0 = not helpful'},
-    {key:'comment',type:'string',req:false,desc:'Optional free-text comment'},
-    {key:'context',type:'string',req:false,desc:'Contextual identifier (e.g. agent or user ID)'}
+    {key:'contentId',type:'string',req:true,ex:'clrj9lbb2000224pot074zf78',desc:'ID of the content item being rated'},
+    {key:'rating',type:'number',req:true,ex:'5',desc:'Rating on a 1–5 scale (1 = lowest, 5 = highest)'},
+    {key:'moduleType',type:'string',req:true,desc:'Type of content being rated',enum:['Article','DecisionTree','PictureGuide','FAQ','Document','Forums','Quiz','Course','LearningPath','Snippet','InquiryDesk','SOP']},
+    {key:'feedback',type:'string',req:false,ex:'Informational Article',desc:'Optional free-text feedback comment'},
+    {key:'feedbackType',type:'string',req:false,ex:'General Feedback',desc:'Feedback category key — defaults to "General Feedback"'}
    ]},
    responses:[{code:201,cls:'rc-ok',desc:'Feedback saved successfully.'},{code:400,cls:'rc-err',desc:'Bad Request. Missing required fields.'},{code:403,cls:'rc-err',desc:'Forbidden.'},{code:404,cls:'rc-err',desc:'Not Found. Content does not exist.'}],
    schema:{name:'FeedbackResponse',fields:[{key:'statusCode',type:'number',req:true,ex:'201',desc:'201 confirms feedback was saved'}]}
@@ -1281,14 +1281,17 @@ function rTry(ep){
   const hp=(ep.params||[]).filter(p=>p.in==='header');
   const qp=(ep.params||[]).filter(p=>p.in==='query');
   function fld(p){
-    const id=`${ep.id}__${p.name}`;
+    const nm=p.name||p.key;
+    const loc=p.in||'body';
+    const id=`${ep.id}__${nm}`;
     if(p.enum){
       const opts=p.enum.map(e=>`<option value="${e}">${e}</option>`).join('');
-      return `<div class="fg"><label class="fl" for="${id}">${p.name} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
-        <select class="fsel" id="${id}" data-param="${p.name}" data-in="${p.in}"><option value="">-- select --</option>${opts}</select></div>`;
+      return `<div class="fg"><label class="fl" for="${id}">${nm} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
+        <select class="fsel" id="${id}" data-param="${nm}" data-in="${loc}"><option value="">-- select --</option>${opts}</select>
+        ${p.desc?`<div class="fhint">${p.desc}</div>`:''}</div>`;
     }
-    return `<div class="fg"><label class="fl" for="${id}">${p.name} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
-      <input class="fi" id="${id}" data-param="${p.name}" data-in="${p.in}" placeholder="${p.ex||p.desc||''}" value=""/>
+    return `<div class="fg"><label class="fl" for="${id}">${nm} <span class="${p.req?'rtag':'otag'}">${p.req?'req':'opt'}</span></label>
+      <input class="fi" id="${id}" data-param="${nm}" data-in="${loc}" placeholder="${p.ex||p.desc||''}" value=""/>
       ${p.desc?`<div class="fhint">${p.desc}</div>`:''}</div>`;
   }
   let s='';
