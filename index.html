@@ -1678,6 +1678,32 @@ function rPrevNext(prev,next){
   return `<div class="ep-prevnext">${prevBtn}<span class="ep-pn-center">Navigate endpoints</span>${nextBtn}</div>`;
 }
 
+function rCodeSample(ep){
+  const groups={};
+  LANG_OPTIONS.forEach(l=>{if(!groups[l.group])groups[l.group]=[];groups[l.group].push(l);});
+  const ddItems=Object.entries(groups).map(([grp,items])=>
+    `<div class="lang-dd-grp">${grp}</div>`+
+    items.map(l=>`<div class="lang-dd-item${l.id==='curl'?' on':''}" data-lang="${l.id}" onclick="selectLang('${ep.id}','${l.id}')">${l.label}</div>`).join('')
+  ).join('');
+  return `<div class="ep-sec" id="codesample-${ep.id}">
+    <div class="ep-sec-lbl">Code Sample</div>
+    <div style="background:#0d1e28;border-radius:var(--r);margin:10px 0">
+      <div class="code-bar" style="gap:10px;border-radius:var(--r) var(--r) 0 0">
+        <div class="code-dots">${_dots}</div>
+        <div class="lang-sel" id="langsel-${ep.id}">
+          <button class="lang-sel-btn" id="langbtn-${ep.id}" onclick="toggleLangDD('${ep.id}')">
+            <span id="langtxt-${ep.id}">Shell / cURL</span>
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="lang-dd" id="langdd-${ep.id}">${ddItems}</div>
+        </div>
+        <button class="copy-btn" style="margin-left:auto" onclick="copyPre('snippre-${ep.id}')">Copy</button>
+      </div>
+      <div id="snippre-${ep.id}" style="padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#cdd9e5;overflow:auto;max-height:380px;white-space:pre-wrap;word-break:break-all;border-top:1px solid rgba(255,255,255,.07)"></div>
+    </div>
+  </div>`;
+}
+
 function rTry(ep){
   const pp=(ep.params||[]).filter(p=>p.in==='path');
   const hp=(ep.params||[]).filter(p=>p.in==='header');
@@ -1712,29 +1738,6 @@ function rTry(ep){
       <div class="key-notice warn" id="keynotice-${ep.id}" style="display:none"></div>
       <div class="try-hint">Fill in the parameters below and click Execute to make a live API call. Use the <strong>Authorize</strong> button in the top bar to set your API key.</div>
       ${s}
-      <div class="tp-sec-lbl" style="margin-top:14px">Code Sample</div>
-      ${(()=>{
-        const groups={};
-        LANG_OPTIONS.forEach(l=>{if(!groups[l.group])groups[l.group]=[];groups[l.group].push(l);});
-        const ddItems=Object.entries(groups).map(([grp,items])=>
-          `<div class="lang-dd-grp">${grp}</div>`+
-          items.map(l=>`<div class="lang-dd-item${l.id==='curl'?' on':''}" data-lang="${l.id}" onclick="selectLang('${ep.id}','${l.id}')">${l.label}</div>`).join('')
-        ).join('');
-        return `<div style="background:#0d1e28;border-radius:var(--r);overflow:hidden;margin:10px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)">
-          <div class="code-bar" style="gap:10px">
-            <div class="code-dots">${_dots}</div>
-            <div class="lang-sel" id="langsel-${ep.id}">
-              <button class="lang-sel-btn" id="langbtn-${ep.id}" onclick="toggleLangDD('${ep.id}')">
-                <span id="langtxt-${ep.id}">Shell / cURL</span>
-                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="lang-dd" id="langdd-${ep.id}">${ddItems}</div>
-            </div>
-            <button class="copy-btn" style="margin-left:auto" onclick="copyPre('snippre-${ep.id}')">Copy</button>
-          </div>
-          <div class="code-pre" id="snippre-${ep.id}" style="background:#0d1e28;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#cdd9e5;overflow:auto;max-height:380px;white-space:pre-wrap;word-break:break-all"></div>
-        </div>`;
-      })()}
       <div class="tp-actions">
         <button class="exec-btn" id="execbtn-${ep.id}" onclick="execReq('${ep.id}')">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Execute
@@ -1770,7 +1773,7 @@ function rCard(ep,prev,next){
     <div class="ep-body" id="body-${ep.id}">
       ${rFacts(ep)}${rOTP(ep)}
       <div class="ep-sec" id="desc-${ep.id}"><div class="ep-sec-lbl">Description</div><p class="ep-desc-txt">${ep.desc}</p></div>
-      ${rParams(ep.params,ep.id)}${rBody(ep.body,ep.id)}${rResponses(ep.responses,ep.id)}${rSchema(ep.schema,ep.id)}${rTry(ep)}
+      ${rParams(ep.params,ep.id)}${rBody(ep.body,ep.id)}${rResponses(ep.responses,ep.id)}${rSchema(ep.schema,ep.id)}${rCodeSample(ep)}${rTry(ep)}
       ${rFeedback(ep)}${rPrevNext(prev,next)}
     </div></div>`;
 }
@@ -1880,10 +1883,11 @@ function buildCurl(ep,inputs){
   const hMap={};
   (ep.params||[]).forEach(p=>{
     const v=inputs[p.name]||'';
-    if(!v)return;
-    if(p.in==='path') path=path.replace('{'+p.name+'}',v);
-    else if(p.in==='query') qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(v));
-    else if(p.in==='header') hMap[p.name]=v;
+    const val=v||(p.req?'<'+p.name+'>':null);
+    if(!val)return;
+    if(p.in==='path') path=path.replace('{'+p.name+'}',val);
+    else if(p.in==='query') qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(val));
+    else if(p.in==='header') hMap[p.name]=val;
   });
   const url=base+path+(qp.length?'?'+qp.join('&'):'');
   const keyStr=globalApiKey||'YOUR_API_KEY';
@@ -1894,8 +1898,12 @@ function buildCurl(ep,inputs){
   Object.entries(hMap).forEach(([k,v])=>lines.push(`  -H "${k}: ${v}"`));
   if(ep.body){
     const bd={};
-    (ep.body.fields||[]).forEach(f=>{const v=inputs[f.key];if(v)bd[f.key]=v;});
-    lines.push(`  -d '${JSON.stringify(Object.keys(bd).length?bd:Object.fromEntries((ep.body.fields||[]).map(f=>[f.key,'<'+f.key+'>'])))}'`);
+    (ep.body.fields||[]).forEach(f=>{
+      const v=inputs[f.key];
+      const val=v||(f.req!==false?'<'+f.key+'>':null);
+      if(val)bd[f.key]=val;
+    });
+    if(Object.keys(bd).length) lines.push(`  -d '${JSON.stringify(bd)}'`);
   }
   return lines.join(' \\\n');
 }
@@ -1928,15 +1936,22 @@ function _getCtx(ep,inputs){
   const keyStr=globalApiKey||'YOUR_API_KEY';
   headers['x-api-key']=keyStr;
   (ep.params||[]).forEach(p=>{
-    const v=inputs[p.name]||'';if(!v)return;
-    if(p.in==='path')path=path.replace('{'+p.name+'}',v);
-    else if(p.in==='query')qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(v));
-    else if(p.in==='header')headers[p.name]=v;
+    const v=inputs[p.name]||'';
+    const val=v||(p.req?'<'+p.name+'>':null);
+    if(!val)return;
+    if(p.in==='path')path=path.replace('{'+p.name+'}',val);
+    else if(p.in==='query')qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(val));
+    else if(p.in==='header')headers[p.name]=val;
   });
   const url=base+path+(qp.length?'?'+qp.join('&'):'');
   let body=null;
-  if(ep.body&&ep.method==='POST'){
-    body={};(ep.body.fields||[]).forEach(f=>{if(inputs[f.key])body[f.key]=inputs[f.key];});
+  if(ep.body){
+    body={};
+    (ep.body.fields||[]).forEach(f=>{
+      const v=inputs[f.key];
+      const val=v||(f.req!==false?'<'+f.key+'>':null);
+      if(val)body[f.key]=val;
+    });
     if(!Object.keys(body).length)body=null;
   }
   const host=base.replace(/^https?:\/\//,'');
