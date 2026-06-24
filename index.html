@@ -474,12 +474,63 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
   border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+/* ── MOBILE MENU ── */
+.menu-btn{display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.55);padding:7px;border-radius:6px;cursor:pointer;
+  align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.menu-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:199;backdrop-filter:blur(2px)}
+.sb-overlay.open{display:block}
+
+/* ── LANGUAGE DROPDOWN ── */
+.lang-sel{position:relative;display:inline-flex;align-items:center}
+.lang-sel-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.75);
+  padding:5px 10px;border-radius:5px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:.15s;letter-spacing:.03em;white-space:nowrap}
+.lang-sel-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff}
+.lang-sel-btn.open svg{transform:rotate(180deg)}
+.lang-sel-btn svg{transition:transform .2s;opacity:.65}
+.lang-dd{position:absolute;top:calc(100% + 6px);left:0;z-index:200;
+  background:#0f2230;border:1px solid rgba(255,255,255,.13);
+  border-radius:8px;box-shadow:0 10px 32px rgba(0,0,0,.5);
+  min-width:210px;display:none;overflow:hidden;padding:4px 0}
+.lang-dd.open{display:block}
+.lang-dd-grp{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;
+  color:rgba(255,255,255,.25);padding:8px 14px 3px;margin-top:2px}
+.lang-dd-grp:first-of-type{padding-top:6px}
+.lang-dd-item{display:flex;align-items:center;gap:8px;padding:7px 14px;
+  cursor:pointer;font-size:11px;font-weight:500;color:rgba(255,255,255,.6);
+  transition:.12s;border-left:2px solid transparent}
+.lang-dd-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.lang-dd-item.on{background:rgba(255,177,99,.1);color:var(--gold);border-left-color:var(--gold)}
+
+@media(max-width:1100px){
+  :root{--sb:250px}
+  .main{padding:24px 28px 80px}
+}
 @media(max-width:800px){
-  .sb,.footer{display:none}
-  .main{margin-left:0}
-  .quick-grid{grid-template-columns:1fr 1fr}
+  :root{--sb:272px}
+  .menu-btn{display:flex}
+  .sb{transform:translateX(-100%);transition:transform .3s ease;z-index:200}
+  .sb.mobile-open{transform:translateX(0)}
+  .footer{display:none}
+  .main{margin-left:0;padding:16px 16px 60px}
+  .quick-grid{grid-template-columns:1fr}
   .hero-art{display:none}
-  .hero-grid{grid-template-columns:1fr}
+  .hero-grid{grid-template-columns:1fr;padding:28px 20px}
+  .hero h1{font-size:20px}
+  .hero-sub{font-size:12px}
+  .ep-facts{overflow-x:auto;flex-wrap:nowrap}
+  .otp{overflow-x:auto;flex-wrap:nowrap}
+  .tp-row{grid-template-columns:1fr}
+  .hdr-nav,.hdr-pipe,.hdr-name,.hdr-ver{display:none}
+  .region-label{display:none}
+  .ep-prevnext{flex-direction:column;gap:8px;align-items:stretch}
+  .ep-pn-btn{justify-content:center;max-width:100%}
+  .ep-pn-center{display:none}
+  .ep-summ{display:none}
+  .modal{padding:24px;width:calc(100vw - 32px)}
 }
 
 /* ── DARK MODE ── */
@@ -604,6 +655,9 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 <body>
 
 <header class="hdr">
+  <button class="menu-btn" id="menuBtn" onclick="toggleMobileSb()" title="Menu">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
   <a class="logo-wrap" href="#">
     <img class="logo-img" src="https://knowmax-ai-website.s3.amazonaws.com/wp-content/uploads/2025/09/17162032/Group-4-1.svg" alt="Knowmax" onerror="this.style.display='none';document.querySelector('.logo-text').style.display='block'"/>
     <span class="logo-text">Knowmax</span>
@@ -657,6 +711,7 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
   </div>
 </nav>
 
+<div class="sb-overlay" id="sbOverlay" onclick="toggleMobileSb()"></div>
 <div class="page">
 <main class="main">
 <div class="main-inner">
@@ -795,6 +850,22 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 const REGIONS={IN:'https://in-manage.knowmax.ai',ME:'https://me-manage.knowmax.ai',EU:'https://eu-manage.knowmax.ai',US:'https://us-manage.knowmax.ai'};
 let curRegion='IN';
 function setRegion(r){curRegion=r;document.getElementById('baseUrlDisplay').textContent=REGIONS[r];}
+
+// ── LANGUAGE OPTIONS ──────────────────────────────────────────
+const LANG_OPTIONS=[
+  {id:'curl',        group:'Shell',      label:'Shell / cURL',          langLabel:'cURL'},
+  {id:'js-fetch',    group:'JavaScript', label:'JavaScript / Fetch',    langLabel:'JavaScript'},
+  {id:'js-axios',    group:'JavaScript', label:'JavaScript / Axios',    langLabel:'JavaScript'},
+  {id:'node-fetch',  group:'Node.js',    label:'Node.js / Fetch',       langLabel:'Node.js'},
+  {id:'node-axios',  group:'Node.js',    label:'Node.js / Axios',       langLabel:'Node.js'},
+  {id:'python-req',  group:'Python',     label:'Python / requests',     langLabel:'Python'},
+  {id:'python-http', group:'Python',     label:'Python / http.client',  langLabel:'Python'},
+  {id:'go',          group:'Go',         label:'Go / net/http',         langLabel:'Go'},
+  {id:'ruby',        group:'Ruby',       label:'Ruby / Net::HTTP',      langLabel:'Ruby'},
+  {id:'php',         group:'PHP',        label:'PHP / cURL',            langLabel:'PHP'},
+  {id:'java',        group:'Java',       label:'Java / OkHttp',         langLabel:'Java'},
+];
+const epLangMap={};
 
 // ── DATA ──────────────────────────────────────────────────────
 const GROUPS=[
@@ -1641,25 +1712,29 @@ function rTry(ep){
       <div class="key-notice warn" id="keynotice-${ep.id}" style="display:none"></div>
       <div class="try-hint">Fill in the parameters below and click Execute to make a live API call. Use the <strong>Authorize</strong> button in the top bar to set your API key.</div>
       ${s}
-      <div class="tp-sec-lbl" style="margin-top:14px">Code Snippet</div>
-      <div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--r);overflow:hidden;margin:10px 0">
-        <div class="code-tabs-bar">
-          <button class="code-tab-btn on" onclick="switchCodeTab(this,'${ep.id}','curl')">cURL</button>
-          <button class="code-tab-btn" onclick="switchCodeTab(this,'${ep.id}','js')">JavaScript</button>
-        </div>
-        <div class="code-tab-panel on" id="curl-panel-${ep.id}">
-          <div class="code" id="curlbox-${ep.id}" style="margin:0;border-radius:0;box-shadow:none">
-            <div class="code-bar"><div class="code-dots">${_dots}</div><span class="code-lang">cURL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <div class="code-pre" id="curlpre-${ep.id}"></div>
+      <div class="tp-sec-lbl" style="margin-top:14px">Code Sample</div>
+      ${(()=>{
+        const groups={};
+        LANG_OPTIONS.forEach(l=>{if(!groups[l.group])groups[l.group]=[];groups[l.group].push(l);});
+        const ddItems=Object.entries(groups).map(([grp,items])=>
+          `<div class="lang-dd-grp">${grp}</div>`+
+          items.map(l=>`<div class="lang-dd-item${l.id==='curl'?' on':''}" data-lang="${l.id}" onclick="selectLang('${ep.id}','${l.id}')">${l.label}</div>`).join('')
+        ).join('');
+        return `<div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--r);overflow:hidden;margin:10px 0">
+          <div class="code-bar" style="gap:10px">
+            <div class="code-dots">${_dots}</div>
+            <div class="lang-sel" id="langsel-${ep.id}">
+              <button class="lang-sel-btn" id="langbtn-${ep.id}" onclick="toggleLangDD('${ep.id}')">
+                <span id="langtxt-${ep.id}">Shell / cURL</span>
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="lang-dd" id="langdd-${ep.id}">${ddItems}</div>
+            </div>
+            <button class="copy-btn" style="margin-left:auto" onclick="copyPre('snippre-${ep.id}')">Copy</button>
           </div>
-        </div>
-        <div class="code-tab-panel" id="js-panel-${ep.id}">
-          <div class="code" id="jsbox-${ep.id}" style="margin:0;border-radius:0;box-shadow:none">
-            <div class="code-bar"><div class="code-dots">${_dots}</div><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <div class="code-pre" id="jspre-${ep.id}"></div>
-          </div>
-        </div>
-      </div>
+          <div class="code-pre" id="snippre-${ep.id}"></div>
+        </div>`;
+      })()}
       <div class="tp-actions">
         <button class="exec-btn" id="execbtn-${ep.id}" onclick="execReq('${ep.id}')">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Execute
@@ -1744,7 +1819,7 @@ function toggleCard(id){
   const open=body.classList.contains('open');
   body.classList.toggle('open',!open);
   chev.classList.toggle('open',!open);
-  if(!open) setTimeout(()=>updCurl(id),50);
+  if(!open) setTimeout(()=>updSnip(id),50);
 }
 
 function togSbGrp(i){
@@ -1783,7 +1858,7 @@ function toggleTry(id){
   if(!open){
     btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Close';
     btn.classList.add('stop');
-    updCurl(id);
+    updSnip(id);
     updKeyNotice(id);
   }else{
     btn.innerHTML='<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>Try it out';
@@ -1817,57 +1892,172 @@ function buildCurl(ep,inputs){
   return `curl -X ${ep.method} "${url}" \\\n  -H "x-api-key: ${keyStr}" \\\n${hLines||'  -H "Content-Type: application/json"'}${bodyLine}`;
 }
 
-function updCurl(id){
-  const ep=getEp(id); const pre=document.getElementById('curlpre-'+id);
-  const jspre=document.getElementById('jspre-'+id);
-  if(!ep||!pre)return;
-  pre.textContent=buildCurl(ep,getInputs(id));
-  if(jspre)jspre.innerHTML=buildJsFetch(ep,getInputs(id));
+function updSnip(id){
+  const ep=getEp(id);
+  if(!ep)return;
+  const langId=epLangMap[id]||'curl';
+  const inputs=getInputs(id);
+  _applySnip(id,ep,inputs,langId);
   document.querySelectorAll(`[id^="${id}__"]`).forEach(el=>{
     el.oninput=el.onchange=()=>{
-      pre.textContent=buildCurl(ep,getInputs(id));
-      if(jspre)jspre.innerHTML=buildJsFetch(ep,getInputs(id));
+      _applySnip(id,ep,getInputs(id),epLangMap[id]||'curl');
     };
   });
 }
+function updCurl(id){updSnip(id);}  // backward compat alias
 
-function buildJsFetch(ep,inputs){
+function _applySnip(id,ep,inputs,langId){
+  const pre=document.getElementById('snippre-'+id);
+  if(!pre)return;
+  const {code,isHtml}=buildSnippet(ep,inputs,langId);
+  if(isHtml)pre.innerHTML=code; else pre.textContent=code;
+}
+
+function _getCtx(ep,inputs){
   const base=REGIONS[curRegion];
   let path=ep.path; const qp=[];
-  const hMap={'Content-Type':'application/json'};
-  const keyStr=globalApiKey?globalApiKey:'YOUR_API_KEY';
-  hMap['x-api-key']=keyStr;
+  const headers={'Content-Type':'application/json'};
+  const keyStr=globalApiKey||'YOUR_API_KEY';
+  headers['x-api-key']=keyStr;
   (ep.params||[]).forEach(p=>{
     const v=inputs[p.name]||'';if(!v)return;
     if(p.in==='path')path=path.replace('{'+p.name+'}',v);
     else if(p.in==='query')qp.push(encodeURIComponent(p.name)+'='+encodeURIComponent(v));
-    else if(p.in==='header')hMap[p.name]=v;
+    else if(p.in==='header')headers[p.name]=v;
   });
   const url=base+path+(qp.length?'?'+qp.join('&'):'');
-  const hdrsInner=Object.entries(hMap).map(([k,v])=>`    <span class="tok-s">'${_esc(k)}'</span>: <span class="tok-s">'${_esc(v)}'</span>`).join(',\n');
-  let bodyStr='';
+  let body=null;
   if(ep.body&&ep.method==='POST'){
-    const bd={};(ep.body.fields||[]).forEach(f=>{if(inputs[f.key])bd[f.key]=inputs[f.key];});
-    const bdStr=Object.keys(bd).length?JSON.stringify(bd,null,4):'{ /* body fields */ }';
-    bodyStr=`\n  body: <span class="tok-m">JSON</span>.stringify(${_esc(bdStr).split('\n').join('\n  ')}),`;
+    body={};(ep.body.fields||[]).forEach(f=>{if(inputs[f.key])body[f.key]=inputs[f.key];});
+    if(!Object.keys(body).length)body=null;
   }
-  return `<span class="tok-c">// async/await — paste inside an async function</span>
-<span class="tok-k">const</span> response = <span class="tok-k">await</span> <span class="tok-m">fetch</span>(<span class="tok-s">'${_esc(url)}'</span>, {
-  method: <span class="tok-s">'${ep.method}'</span>,
-  headers: {
-${hdrsInner}
-  },${bodyStr}
-});
-<span class="tok-k">const</span> data = <span class="tok-k">await</span> response.<span class="tok-m">json</span>();
-<span class="tok-m">console</span>.log(data);`;
+  const host=base.replace(/^https?:\/\//,'');
+  const pathQ=path+(qp.length?'?'+qp.join('&'):'');
+  return{url,host,pathQ,headers,body,method:ep.method};
 }
 
-function switchCodeTab(btn,epId,tab){
-  btn.closest('.code-tabs-bar').querySelectorAll('.code-tab-btn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('curl-panel-'+epId).classList.toggle('on',tab==='curl');
-  document.getElementById('js-panel-'+epId).classList.toggle('on',tab==='js');
+function buildSnippet(ep,inputs,langId){
+  const ctx=_getCtx(ep,inputs);
+  switch(langId){
+    case 'curl':        return{code:buildCurl(ep,inputs),isHtml:false};
+    case 'js-fetch':    return{code:_snipJsFetch(ctx),isHtml:true};
+    case 'js-axios':    return{code:_snipJsAxios(ctx),isHtml:false};
+    case 'node-fetch':  return{code:_snipNodeFetch(ctx),isHtml:false};
+    case 'node-axios':  return{code:_snipNodeAxios(ctx),isHtml:false};
+    case 'python-req':  return{code:_snipPythonReq(ctx),isHtml:false};
+    case 'python-http': return{code:_snipPythonHttp(ctx),isHtml:false};
+    case 'go':          return{code:_snipGo(ctx),isHtml:false};
+    case 'ruby':        return{code:_snipRuby(ctx),isHtml:false};
+    case 'php':         return{code:_snipPhp(ctx),isHtml:false};
+    case 'java':        return{code:_snipJava(ctx),isHtml:false};
+    default:            return{code:buildCurl(ep,inputs),isHtml:false};
+  }
 }
+
+function _h(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _snipJsFetch({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`    <span class="tok-s">'${_h(k)}'</span>: <span class="tok-s">'${_h(v)}'</span>`).join(',\n');
+  const bdStr=body?`\n  body: <span class="tok-m">JSON</span>.stringify(${_h(JSON.stringify(body,null,2)).split('\n').join('\n  ')}),`:'';
+  return `<span class="tok-c">// async/await — use inside an async function</span>
+<span class="tok-k">const</span> response = <span class="tok-k">await</span> <span class="tok-m">fetch</span>(<span class="tok-s">'${_h(url)}'</span>, {
+  method: <span class="tok-s">'${method}'</span>,
+  headers: {\n${hdrs}\n  },${bdStr}
+});
+<span class="tok-k">const</span> data = <span class="tok-k">await</span> response.<span class="tok-m">json</span>();
+<span class="tok-m">console</span>.log(data);`;}
+
+function _hdrsStr(headers,indent){
+  return Object.entries(headers).map(([k,v])=>`${indent}'${k}': '${v}'`).join(',\n');}
+
+function _snipJsAxios({url,headers,body,method}){
+  const bdStr=body?`,\n  data: ${JSON.stringify(body,null,2).split('\n').join('\n  ')}`:'';
+  return `// npm install axios\nconst axios = require('axios');\n\nconst response = await axios({\n  method: '${method.toLowerCase()}',\n  url: '${url}',\n  headers: {\n${_hdrsStr(headers,'    ')}\n  }${bdStr}\n});\n\nconsole.log(response.data);`;}
+
+function _snipNodeFetch({url,headers,body,method}){
+  const bdStr=body?`,\n  body: JSON.stringify(${JSON.stringify(body,null,2).split('\n').join('\n  ')})`:'';
+  return `// Node.js 18+ has fetch built-in\n// Older Node: npm install node-fetch\n\nconst response = await fetch('${url}', {\n  method: '${method}',\n  headers: {\n${_hdrsStr(headers,'    ')}\n  }${bdStr}\n});\n\nconst data = await response.json();\nconsole.log(data);`;}
+
+function _snipNodeAxios({url,headers,body,method}){
+  const bdStr=body?`,\n  data: ${JSON.stringify(body,null,2).split('\n').join('\n  ')}`:'';
+  return `// npm install axios\nconst axios = require('axios');\n\nconst { data } = await axios({\n  method: '${method.toLowerCase()}',\n  url: '${url}',\n  headers: {\n${_hdrsStr(headers,'    ')}\n  }${bdStr}\n});\n\nconsole.log(data);`;}
+
+function _snipPythonReq({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`    "${k}": "${v}"`).join(',\n');
+  const bdStr=body?`\njson_data = ${JSON.stringify(body,null,4)}\nresponse = requests.${method.toLowerCase()}(url, headers=headers, json=json_data)`:`\nresponse = requests.${method.toLowerCase()}(url, headers=headers)`;
+  return `import requests\n\nurl = "${url}"\nheaders = {\n${hdrs}\n}\n${bdStr}\n\ndata = response.json()\nprint(data)`;}
+
+function _snipPythonHttp({url,host,pathQ,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`    "${k}": "${v}"`).join(',\n');
+  const bdStr=body?`\nbody = json.dumps(${JSON.stringify(body,null,4)})\nconn.request("${method}", "${pathQ}", body, headers)`:`\nconn.request("${method}", "${pathQ}", headers=headers)`;
+  return `import http.client\nimport json\n\nconn = http.client.HTTPSConnection("${host}")\nheaders = {\n${hdrs}\n}\n${bdStr}\nres = conn.getresponse()\ndata = json.loads(res.read())\nprint(data)`;}
+
+function _snipGo({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`\treq.Header.Set("${k}", "${v}")`).join('\n');
+  const bdStr=body?`\n\t// body payload\n\tbody := strings.NewReader(\`${JSON.stringify(body)}\`)`:'';
+  const bodyArg=body?'body':'nil';
+  const imports=body?'"io"\n\t"net/http"\n\t"strings"':'"fmt"\n\t"io"\n\t"net/http"';
+  return `package main\n\nimport (\n\t${imports}\n)\n\nfunc main() {\n\tclient := &http.Client{}${bdStr}\n\treq, _ := http.NewRequest("${method}", "${url}", ${bodyArg})\n${hdrs}\n\n\tresp, _ := client.Do(req)\n\tdefer resp.Body.Close()\n\tbody2, _ := io.ReadAll(resp.Body)\n\tfmt.Println(string(body2))\n}`;}
+
+function _snipRuby({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`request["${k}"] = "${v}"`).join('\n');
+  const reqClass=method==='POST'?'Net::HTTP::Post':'Net::HTTP::Get';
+  const bdStr=body?`\nrequest.body = '${JSON.stringify(body)}'`:'';
+  return `require 'uri'\nrequire 'net/http'\nrequire 'json'\n\nuri = URI('${url}')\nhttp = Net::HTTP.new(uri.host, uri.port)\nhttp.use_ssl = true\n\nrequest = ${reqClass}.new(uri)\n${hdrs}${bdStr}\n\nresponse = http.request(request)\ndata = JSON.parse(response.body)\nputs data`;}
+
+function _snipPhp({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`    '${k}: ${v}'`).join(',\n');
+  const bdStr=body?`\ncurl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${JSON.stringify(body)}));`:'';
+  return `<?php\n$ch = curl_init();\ncurl_setopt($ch, CURLOPT_URL, '${url}');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\ncurl_setopt($ch, CURLOPT_CUSTOMREQUEST, '${method}');\ncurl_setopt($ch, CURLOPT_HTTPHEADER, [\n${hdrs}\n]);${bdStr}\n$response = curl_exec($ch);\ncurl_close($ch);\n$data = json_decode($response, true);\nvar_dump($data);`;}
+
+function _snipJava({url,headers,body,method}){
+  const hdrs=Object.entries(headers).map(([k,v])=>`    .addHeader("${k}", "${v}")`).join('\n');
+  const bdStr=body?`\n    RequestBody body = RequestBody.create(\n        "${JSON.stringify(body)}",\n        MediaType.parse("application/json")\n    );`:'';
+  const reqBuild=method==='POST'?`\n    .post(body)`:`\n    .get()`;
+  return `// build.gradle: implementation("com.squareup.okhttp3:okhttp:4.12.0")\n\nOkHttpClient client = new OkHttpClient();\n${bdStr}\nRequest request = new Request.Builder()\n    .url("${url}")${reqBuild}\n${hdrs}\n    .build();\n\ntry (Response response = client.newCall(request).execute()) {\n    System.out.println(response.body().string());\n}`;}
+
+function copyPre(preId){
+  const pre=document.getElementById(preId);
+  if(!pre)return;
+  navigator.clipboard.writeText(pre.innerText||pre.textContent).then(()=>{
+    const btn=pre.closest('[style*="border"]')?.querySelector('.copy-btn');
+    if(btn){btn.textContent='Copied!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok');},2000);}
+  });
+}
+
+function toggleLangDD(id){
+  const dd=document.getElementById('langdd-'+id);
+  const btn=document.getElementById('langbtn-'+id);
+  const isOpen=dd.classList.contains('open');
+  document.querySelectorAll('.lang-dd.open').forEach(el=>el.classList.remove('open'));
+  document.querySelectorAll('.lang-sel-btn.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen){dd.classList.add('open');btn.classList.add('open');}
+}
+
+function selectLang(epId,langId){
+  epLangMap[epId]=langId;
+  const lang=LANG_OPTIONS.find(l=>l.id===langId);
+  if(!lang)return;
+  document.getElementById('langtxt-'+epId).textContent=lang.label;
+  const dd=document.getElementById('langdd-'+epId);
+  dd.querySelectorAll('.lang-dd-item').forEach(el=>el.classList.toggle('on',el.dataset.lang===langId));
+  dd.classList.remove('open');
+  document.getElementById('langbtn-'+epId)?.classList.remove('open');
+  const ep=getEp(epId);
+  if(ep)_applySnip(epId,ep,getInputs(epId),langId);
+}
+
+function toggleMobileSb(){
+  document.getElementById('sb')?.classList.toggle('mobile-open');
+  document.getElementById('sbOverlay')?.classList.toggle('open');
+}
+
+// close lang dropdowns on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.lang-sel')){
+    document.querySelectorAll('.lang-dd.open').forEach(el=>el.classList.remove('open'));
+    document.querySelectorAll('.lang-sel-btn.open').forEach(el=>el.classList.remove('open'));
+  }
+});
 
 function scrollToSec(id){
   const el=document.getElementById(id);
