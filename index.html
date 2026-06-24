@@ -1720,7 +1720,7 @@ function rTry(ep){
           `<div class="lang-dd-grp">${grp}</div>`+
           items.map(l=>`<div class="lang-dd-item${l.id==='curl'?' on':''}" data-lang="${l.id}" onclick="selectLang('${ep.id}','${l.id}')">${l.label}</div>`).join('')
         ).join('');
-        return `<div style="border:1px solid rgba(255,255,255,.08);border-radius:var(--r);overflow:hidden;margin:10px 0">
+        return `<div style="background:#0d1e28;border-radius:var(--r);overflow:hidden;margin:10px 0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)">
           <div class="code-bar" style="gap:10px">
             <div class="code-dots">${_dots}</div>
             <div class="lang-sel" id="langsel-${ep.id}">
@@ -1732,7 +1732,7 @@ function rTry(ep){
             </div>
             <button class="copy-btn" style="margin-left:auto" onclick="copyPre('snippre-${ep.id}')">Copy</button>
           </div>
-          <div class="code-pre" id="snippre-${ep.id}"></div>
+          <div class="code-pre" id="snippre-${ep.id}" style="background:#0d1e28;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#cdd9e5;overflow:auto;max-height:380px;white-space:pre-wrap;word-break:break-all"></div>
         </div>`;
       })()}
       <div class="tp-actions">
@@ -1886,10 +1886,18 @@ function buildCurl(ep,inputs){
     else if(p.in==='header') hMap[p.name]=v;
   });
   const url=base+path+(qp.length?'?'+qp.join('&'):'');
-  const hLines=Object.entries(hMap).map(([k,v])=>`  -H "${k}: ${v}"`).join(' \\\n');
-  const bodyLine=ep.body?` \\\n  -d '${JSON.stringify(Object.fromEntries((ep.body.fields||[]).map(f=>[f.key,inputs[f.key]||''])))}'`:'';
-  const keyStr = globalApiKey ? globalApiKey : 'YOUR_API_KEY';
-  return `curl -X ${ep.method} "${url}" \\\n  -H "x-api-key: ${keyStr}" \\\n${hLines||'  -H "Content-Type: application/json"'}${bodyLine}`;
+  const keyStr=globalApiKey||'YOUR_API_KEY';
+  const lines=[`curl -X ${ep.method} "${url}"`];
+  lines.push(`  -H "x-api-key: ${keyStr}"`);
+  if(ep.body||ep.method==='POST'||ep.method==='PUT'||ep.method==='PATCH')
+    lines.push(`  -H "Content-Type: application/json"`);
+  Object.entries(hMap).forEach(([k,v])=>lines.push(`  -H "${k}: ${v}"`));
+  if(ep.body){
+    const bd={};
+    (ep.body.fields||[]).forEach(f=>{const v=inputs[f.key];if(v)bd[f.key]=v;});
+    lines.push(`  -d '${JSON.stringify(Object.keys(bd).length?bd:Object.fromEntries((ep.body.fields||[]).map(f=>[f.key,'<'+f.key+'>'])))}'`);
+  }
+  return lines.join(' \\\n');
 }
 
 function updSnip(id){
