@@ -849,7 +849,14 @@ body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;
 <script>
 const REGIONS={IN:'https://in-manage.knowmax.ai',ME:'https://me-manage.knowmax.ai',EU:'https://eu-manage.knowmax.ai',US:'https://us-manage.knowmax.ai'};
 let curRegion='IN';
-function setRegion(r){curRegion=r;document.getElementById('baseUrlDisplay').textContent=REGIONS[r];}
+function setRegion(r){
+  curRegion=r;
+  document.getElementById('baseUrlDisplay').textContent=REGIONS[r];
+  document.querySelectorAll('.ep-body.open').forEach(body=>{
+    const id=body.id.replace('body-','');
+    updSnip(id);
+  });
+}
 
 // ── LANGUAGE OPTIONS ──────────────────────────────────────────
 const LANG_OPTIONS=[
